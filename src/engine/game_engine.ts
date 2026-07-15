@@ -14,6 +14,7 @@ export interface GameEngine {
   getState(): GameState;
   setupGame(seed?: number): GameState;
   dealCards(): GameState;
+  loadState(state: GameState): GameState;
   drawFromNoc(state: GameState): GameState;
   eatCard(state: GameState, playerId: number, handCardIds?: string[]): GameState;
   chiuCard(state: GameState, playerId: number): GameState;
@@ -71,6 +72,11 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG): GameEngin
           currentPlayerId: 0, // Dealer goes first
         },
       };
+      return currentState;
+    },
+
+    loadState(state: GameState): GameState {
+      currentState = state;
       return currentState;
     },
 

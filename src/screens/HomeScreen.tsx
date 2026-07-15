@@ -4,10 +4,12 @@ import { useTranslation } from '../i18n';
 
 interface HomeScreenProps {
   onPlay: () => void;
+  onContinue?: () => void;
+  hasSavedGame?: boolean;
   onSettings: () => void;
 }
 
-export default function HomeScreen({ onPlay, onSettings }: HomeScreenProps) {
+export default function HomeScreen({ onPlay, onContinue, hasSavedGame, onSettings }: HomeScreenProps) {
   const { t } = useTranslation();
 
   return (
@@ -33,6 +35,12 @@ export default function HomeScreen({ onPlay, onSettings }: HomeScreenProps) {
       </View>
 
       <View style={styles.menu}>
+        {hasSavedGame && onContinue && (
+          <TouchableOpacity style={styles.continueButton} onPress={onContinue}>
+            <Text style={styles.continueButtonText}>{t.continueGame}</Text>
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity style={styles.playButton} onPress={onPlay}>
           <Text style={styles.playButtonText}>{t.play}</Text>
         </TouchableOpacity>
@@ -53,20 +61,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a472a',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 60,
+    paddingTop: 40,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
   },
   title: {
-    fontSize: 52,
+    fontSize: 48,
     fontWeight: 'bold',
     color: '#f1c40f',
     letterSpacing: 4,
   },
   subtitle: {
-    fontSize: 22,
+    fontSize: 20,
     color: '#e67e22',
     fontWeight: '300',
     letterSpacing: 8,
@@ -74,13 +82,13 @@ const styles = StyleSheet.create({
   },
   cardPreview: {
     flexDirection: 'row',
-    marginBottom: 50,
-    height: 100,
+    marginBottom: 40,
+    height: 90,
     alignItems: 'center',
   },
   card: {
-    width: 60,
-    height: 84,
+    width: 55,
+    height: 78,
     borderRadius: 8,
     borderWidth: 2,
     borderColor: '#f1c40f',
@@ -98,21 +106,38 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   cardChar: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#e74c3c',
   },
   cardSuit: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#2c3e50',
   },
   menu: {
-    width: '80%',
-    gap: 16,
+    width: '70%',
+    gap: 14,
+  },
+  continueButton: {
+    backgroundColor: '#27ae60',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  continueButtonText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    letterSpacing: 2,
   },
   playButton: {
     backgroundColor: '#e74c3c',
-    paddingVertical: 18,
+    paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     shadowColor: '#000',
@@ -123,13 +148,13 @@ const styles = StyleSheet.create({
   },
   playButtonText: {
     color: '#fff',
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     letterSpacing: 2,
   },
   menuButton: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
@@ -137,11 +162,11 @@ const styles = StyleSheet.create({
   },
   menuButtonText: {
     color: '#ecf0f1',
-    fontSize: 16,
+    fontSize: 15,
   },
   footer: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 30,
     color: '#7f8c8d',
     fontSize: 12,
   },

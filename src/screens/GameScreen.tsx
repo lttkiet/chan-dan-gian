@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { CardHand } from '../components/CardHand';
 import { CardPile } from '../components/CardPile';
@@ -12,14 +12,16 @@ import { analyzeHand } from '../engine/meld_analyzer';
 import { GameConfig, DEFAULT_CONFIG } from '../models/game_config';
 import { CuocResult } from '../engine/scoring';
 import { useTranslation } from '../i18n';
+import { saveGame, clearGame, SavedGame } from '../utils/storage';
 
 interface GameScreenProps {
   config?: GameConfig;
+  savedGame?: SavedGame | null;
   onOpenSettings?: () => void;
   onBackToHome?: () => void;
 }
 
-export default function GameScreen({ config = DEFAULT_CONFIG, onOpenSettings, onBackToHome }: GameScreenProps) {
+export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenSettings, onBackToHome }: GameScreenProps) {
   const { t } = useTranslation();
   const [engine] = useState(() => createGameEngine(config));
   const [ai] = useState(() => createAiPlayer());
@@ -34,8 +36,35 @@ export default function GameScreen({ config = DEFAULT_CONFIG, onOpenSettings, on
     cuocResult?: CuocResult;
   } | null>(null);
   const [pendingDiscard, setPendingDiscard] = useState(false);
+  const gameStateRef = useRef<GameState | null>(null);
+  const configRef = useRef(config);
+
+  configRef.current = config;
+
+  // Load saved game on mount
+  useEffect(() => {
+    if (savedGame && !gameStarted) {
+      engine.loadState(savedGame.gameState);
+      setGameState(savedGame.gameState);
+      setGameStarted(true);
+      setMessage('Trò chơi đã được khôi phục');
+    }
+  }, []);
+
+  // Auto-save on state change
+  useEffect(() => {
+    if (gameState && gameStarted && gameState.turn.phase === GamePhase.Playing && !gameResult) {
+      saveGame(gameState, configRef.current);
+    }
+  }, [gameState, gameStarted, gameResult]);
+
+  // Keep ref in sync
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
 
   const startGame = useCallback(() => {
+    clearGame();
     let state = engine.setupGame(Date.now());
     state = engine.dealCards();
     setGameState(state);
@@ -46,6 +75,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, onOpenSettings, on
   }, [engine, t]);
 
   const resetGame = () => {
+    clearGame();
     setGameResult(null);
     setGameStarted(false);
     setGameState(null);
@@ -74,10 +104,11 @@ export default function GameScreen({ config = DEFAULT_CONFIG, onOpenSettings, on
   }, [gameState?.turn.currentPlayerId, gameStarted, gameResult]);
 
   const runAiTurn = (playerId: number) => {
-    if (!gameState) return;
+    const currentState = gameStateRef.current;
+    if (!currentState) return;
 
-    const decision = ai.decide(gameState, playerId, engine);
-    let newState = gameState;
+    const decision = ai.decide(currentState, playerId, engine);
+    let newState = currentState;
 
     switch (decision.action) {
       case PlayerAction.Draw:
@@ -107,12 +138,12 @@ export default function GameScreen({ config = DEFAULT_CONFIG, onOpenSettings, on
         newState = engine.passTurn(newState);
     }
 
-    // Check for win after AI action
     const winCheck = engine.checkForWin(newState, playerId);
     if (winCheck.won) {
       const winnerName = newState.players[playerId].name;
       const isHumanWin = newState.players[playerId].isHuman;
       setMessage(`${winnerName} ${t.winSubtitle}${winCheck.winType}`);
+      clearGame();
       setGameResult({
         winner: winnerName,
         isHumanWin,
@@ -162,6 +193,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, onOpenSettings, on
       const winCheck = engine.checkForWin(newState, 0);
       if (winCheck.won) {
         setMessage(t.msgYouWin);
+        clearGame();
         setGameResult({
           winner: t.appName,
           isHumanWin: true,
@@ -196,6 +228,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, onOpenSettings, on
       const winCheck = engine.checkForWin(newState, 0);
       if (winCheck.won) {
         setMessage(t.msgYouWin);
+        clearGame();
         setGameResult({
           winner: t.appName,
           isHumanWin: true,
@@ -222,7 +255,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, onOpenSettings, on
 
   if (!gameState || !gameStarted) {
     return (
-      <View style={styles.container}>
+      <View style={styles.preGame}>
         <Text style={styles.title}>{t.appName} {t.appSubtitle}</Text>
         <TouchableOpacity style={styles.startButton} onPress={startGame}>
           <Text style={styles.startButtonText}>{t.startGame}</Text>
@@ -242,12 +275,17 @@ export default function GameScreen({ config = DEFAULT_CONFIG, onOpenSettings, on
   }
 
   const humanHand = gameState.players[0].hand.cards;
-  const topDiscard = gameState.deck.discardPile.length > 0
+  const topDiscardCard = gameState.deck.discardPile.length > 0
     ? gameState.deck.discardPile[gameState.deck.discardPile.length - 1]
     : null;
   const analysis = analyzeHand(gameState.players[0].hand);
   const isMyTurn = gameState.turn.currentPlayerId === 0;
   const actions = isMyTurn ? engine.getValidActions(gameState, 0) : [];
+
+  // Compute highlightable cards (valid discards when it's time to discard)
+  const validDiscardIds = pendingDiscard && isMyTurn
+    ? new Set(engine.getValidDiscards(gameState, 0).map(c => c.id))
+    : undefined;
 
   return (
     <View style={styles.container}>
@@ -260,51 +298,83 @@ export default function GameScreen({ config = DEFAULT_CONFIG, onOpenSettings, on
         <View style={{ width: 30 }} />
       </View>
 
-      {/* AI players */}
-      <View style={styles.aiRow}>
-        {[1, 2, 3].map(i => (
-          <View key={i} style={[
-            styles.aiPlayer,
-            gameState.turn.currentPlayerId === i && styles.aiPlayerActive,
-          ]}>
-            <Text style={styles.aiName}>{gameState.players[i].name}</Text>
-            <Text style={styles.cardCount}>{handSize(gameState.players[i].hand)} {t.cardCount}</Text>
-            {gameState.players[i].melds.length > 0 && (
-              <Text style={styles.meldCount}>{gameState.players[i].melds.length} {t.meldCount}</Text>
-            )}
+      {/* Main area: left AI, center pile, right AI */}
+      <View style={styles.mainArea}>
+        {/* Left: AI 1 */}
+        <View style={styles.sideAI}>
+          {[1, 2, 3].filter(i => i === 1).map(i => (
+            <View key={i} style={[
+              styles.aiPlayer,
+              gameState.turn.currentPlayerId === i && styles.aiPlayerActive,
+            ]}>
+              <Text style={styles.aiName}>{gameState.players[i].name}</Text>
+              <View style={styles.cardBacks}>
+                {Array.from({ length: Math.min(handSize(gameState.players[i].hand), 10) }).map((_, idx) => (
+                  <View key={idx} style={styles.miniCardBack}>
+                    <View style={styles.miniCardBackInner} />
+                  </View>
+                ))}
+              </View>
+              <Text style={styles.cardCount}>{handSize(gameState.players[i].hand)} {t.cardCount}</Text>
+              {gameState.players[i].melds.length > 0 && (
+                <Text style={styles.meldCount}>{gameState.players[i].melds.length} {t.meldCount}</Text>
+              )}
+            </View>
+          ))}
+        </View>
+
+        {/* Center: pile + status */}
+        <View style={styles.centerArea}>
+          <View style={styles.statusBar}>
+            <Text style={styles.statusText}>{message}</Text>
+            <Text style={styles.turnText}>
+              {isMyTurn ? t.yourTurn : `${t.turnOf}${gameState.players[gameState.turn.currentPlayerId].name}`}
+            </Text>
           </View>
-        ))}
+
+          <CardPile
+            discardPile={gameState.deck.discardPile}
+            drawPileCount={drawPileCount(gameState.deck)}
+            onDrawPress={handleDraw}
+          />
+
+          {topDiscardCard && (
+            <Text style={styles.discardInfo}>
+              {t.discardInfo}{topDiscardCard.rank} {topDiscardCard.suit}
+            </Text>
+          )}
+
+          <View style={styles.meldInfo}>
+            <Text style={styles.meldText}>{t.chanLabel}{analysis.chanCount}</Text>
+            <Text style={styles.meldText}>{t.caLabel}{analysis.cas.length}</Text>
+            <Text style={styles.meldText}>{t.baDauLabel}{analysis.baDaus.length}</Text>
+            <Text style={styles.meldText}>{t.queLabel}{analysis.quanLes.length}</Text>
+          </View>
+        </View>
+
+        {/* Right: AI 2 + AI 3 */}
+        <View style={styles.sideAI}>
+          {[1, 2, 3].filter(i => i === 2 || i === 3).map(i => (
+            <View key={i} style={[
+              styles.aiPlayer,
+              gameState.turn.currentPlayerId === i && styles.aiPlayerActive,
+            ]}>
+              <Text style={styles.aiName}>{gameState.players[i].name}</Text>
+              <View style={styles.cardBacks}>
+                {Array.from({ length: Math.min(handSize(gameState.players[i].hand), 10) }).map((_, idx) => (
+                  <View key={idx} style={styles.miniCardBack}>
+                    <View style={styles.miniCardBackInner} />
+                  </View>
+                ))}
+              </View>
+              <Text style={styles.cardCount}>{handSize(gameState.players[i].hand)} {t.cardCount}</Text>
+              {gameState.players[i].melds.length > 0 && (
+                <Text style={styles.meldCount}>{gameState.players[i].melds.length} {t.meldCount}</Text>
+              )}
+            </View>
+          ))}
+        </View>
       </View>
-
-      {/* Status */}
-      <View style={styles.statusBar}>
-        <Text style={styles.statusText}>{message}</Text>
-        <Text style={styles.turnText}>
-          {isMyTurn ? t.yourTurn : `${t.turnOf}${gameState.players[gameState.turn.currentPlayerId].name}`}
-        </Text>
-      </View>
-
-      {/* Meld info */}
-      <View style={styles.meldInfo}>
-        <Text style={styles.meldText}>{t.chanLabel}{analysis.chanCount}</Text>
-        <Text style={styles.meldText}>{t.caLabel}{analysis.cas.length}</Text>
-        <Text style={styles.meldText}>{t.baDauLabel}{analysis.baDaus.length}</Text>
-        <Text style={styles.meldText}>{t.queLabel}{analysis.quanLes.length}</Text>
-      </View>
-
-      {/* Pile area */}
-      <CardPile
-        discardPile={gameState.deck.discardPile}
-        drawPileCount={drawPileCount(gameState.deck)}
-        onDrawPress={handleDraw}
-      />
-
-      {/* Last discard info */}
-      {topDiscard && (
-        <Text style={styles.discardInfo}>
-          {t.discardInfo}{topDiscard.rank} {topDiscard.suit}
-        </Text>
-      )}
 
       {/* Action buttons */}
       {isMyTurn && !gameResult && (
@@ -341,6 +411,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, onOpenSettings, on
         <CardHand
           cards={humanHand}
           selectedCardId={selectedCard}
+          highlightedCardIds={validDiscardIds}
           onCardPress={handleCardPress}
         />
         {pendingDiscard && (
@@ -388,14 +459,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1a472a',
-    paddingTop: 50,
+    paddingTop: 20,
+    paddingHorizontal: 8,
+  },
+  preGame: {
+    flex: 1,
+    backgroundColor: '#1a472a',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    marginBottom: 8,
+    paddingHorizontal: 12,
+    marginBottom: 4,
   },
   backBtn: {
     width: 30,
@@ -410,7 +488,7 @@ const styles = StyleSheet.create({
   },
   topBarTitle: {
     color: '#f1c40f',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   title: {
@@ -418,7 +496,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#f1c40f',
     textAlign: 'center',
-    marginTop: 100,
   },
   startButton: {
     backgroundColor: '#e74c3c',
@@ -445,18 +522,28 @@ const styles = StyleSheet.create({
     color: '#f1c40f',
     fontSize: 16,
   },
-  aiRow: {
+  mainArea: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 16,
-    marginBottom: 8,
+    alignItems: 'center',
+  },
+  sideAI: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 8,
+  },
+  centerArea: {
+    flex: 2,
+    alignItems: 'center',
+    gap: 4,
   },
   aiPlayer: {
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.3)',
     paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     borderRadius: 8,
+    minWidth: 90,
   },
   aiPlayerActive: {
     borderColor: '#f1c40f',
@@ -464,62 +551,84 @@ const styles = StyleSheet.create({
   },
   aiName: {
     color: '#ecf0f1',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
+    marginBottom: 4,
+  },
+  cardBacks: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 1,
+    marginBottom: 2,
+  },
+  miniCardBack: {
+    width: 12,
+    height: 17,
+    borderRadius: 2,
+    backgroundColor: '#1e3a5f',
+    borderWidth: 1,
+    borderColor: '#f1c40f',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  miniCardBackInner: {
+    width: 5,
+    height: 5,
+    backgroundColor: '#c0392b',
+    transform: [{ rotate: '45deg' }],
   },
   cardCount: {
     color: '#95a5a6',
-    fontSize: 10,
+    fontSize: 9,
   },
   meldCount: {
     color: '#27ae60',
-    fontSize: 10,
+    fontSize: 9,
   },
   statusBar: {
     backgroundColor: 'rgba(0,0,0,0.4)',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginHorizontal: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     borderRadius: 8,
-    marginBottom: 8,
+    width: '100%',
+    alignItems: 'center',
   },
   statusText: {
     color: '#f1c40f',
-    fontSize: 14,
+    fontSize: 13,
     textAlign: 'center',
   },
   turnText: {
     color: '#ecf0f1',
-    fontSize: 12,
+    fontSize: 11,
     textAlign: 'center',
-    marginTop: 4,
+    marginTop: 2,
   },
   meldInfo: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12,
-    marginBottom: 8,
+    gap: 10,
   },
   meldText: {
     color: '#ecf0f1',
-    fontSize: 11,
+    fontSize: 10,
   },
   discardInfo: {
     color: '#95a5a6',
-    fontSize: 11,
+    fontSize: 10,
     textAlign: 'center',
-    marginTop: 4,
   },
   actions: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 10,
-    marginVertical: 10,
+    gap: 8,
+    paddingVertical: 6,
   },
   actionButton: {
     backgroundColor: '#3498db',
-    paddingVertical: 10,
-    paddingHorizontal: 18,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
     borderRadius: 8,
   },
   eatButton: {
@@ -533,25 +642,23 @@ const styles = StyleSheet.create({
   },
   actionText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   handContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    paddingBottom: 20,
+    paddingBottom: 12,
   },
   handLabel: {
     color: '#ecf0f1',
-    fontSize: 12,
+    fontSize: 11,
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   discardHint: {
     color: '#f39c12',
-    fontSize: 12,
+    fontSize: 11,
     textAlign: 'center',
-    marginTop: 4,
+    marginTop: 2,
   },
   modalOverlay: {
     flex: 1,

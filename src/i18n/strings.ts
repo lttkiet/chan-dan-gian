@@ -102,6 +102,10 @@ export interface AppStrings {
   errCannotFormCaUseChan: string;
   errCannotFormBaDauRank: string;
   errCannotFormBaDauSuits: string;
+
+  // Persistent state
+  continueGame: string;
+  savedAt: string;
 }
 
 const vi: AppStrings = {
@@ -192,6 +196,9 @@ const vi: AppStrings = {
   errCannotFormCaUseChan: 'Không thể tạo Cạ: phải khác chất (dùng Chăn)',
   errCannotFormBaDauRank: 'Không thể tạo Ba Đầu: phải cùng hạng',
   errCannotFormBaDauSuits: 'Không thể tạo Ba Đầu: phải khác 3 chất',
+
+  continueGame: 'Tiếp tục chơi',
+  savedAt: 'Đã lưu: ',
 };
 
 const en: AppStrings = {
@@ -282,6 +289,9 @@ const en: AppStrings = {
   errCannotFormCaUseChan: 'Cannot form Ca: must be different suits (use Chan)',
   errCannotFormBaDauRank: 'Cannot form Ba Dau: must be same rank',
   errCannotFormBaDauSuits: 'Cannot form Ba Dau: must be 3 different suits',
+
+  continueGame: 'Continue',
+  savedAt: 'Saved: ',
 };
 
 export const STRINGS: Record<Language, AppStrings> = { vi, en };

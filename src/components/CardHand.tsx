@@ -6,12 +6,13 @@ import { CardWidget } from './CardWidget';
 interface CardHandProps {
   cards: Card[];
   selectedCardId?: string | null;
+  highlightedCardIds?: Set<string>;
   onCardPress?: (card: Card) => void;
   faceDown?: boolean;
   small?: boolean;
 }
 
-export function CardHand({ cards, selectedCardId, onCardPress, faceDown = false, small = false }: CardHandProps) {
+export function CardHand({ cards, selectedCardId, highlightedCardIds, onCardPress, faceDown = false, small = false }: CardHandProps) {
   return (
     <ScrollView
       horizontal
@@ -24,6 +25,7 @@ export function CardHand({ cards, selectedCardId, onCardPress, faceDown = false,
           card={card}
           faceDown={faceDown}
           selected={selectedCardId === card.id}
+          highlighted={highlightedCardIds?.has(card.id) ?? false}
           onPress={() => onCardPress?.(card)}
           small={small}
         />
