@@ -47,7 +47,7 @@ jobs:
           retention-days: 3
 
   build-android:
-    name: Build Android (EAS)
+    name: Build Android
     if: github.event.inputs.platform == 'android'
     runs-on: ubuntu-latest
     steps:
@@ -60,11 +60,17 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Install dependencies
         run: npm ci
-
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
 
       - name: Type check
         run: npm run lint
@@ -72,12 +78,21 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Build Android APK via EAS
-        run: eas build --platform android --profile preview --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: Generate native Android project
+        run: npx expo prebuild --platform android --clean
 
-      - name: Print build info
+      - name: Build APK
+        run: cd android && ./gradlew assembleRelease
+
+      - name: Find APK
+        id: find-apk
         run: |
-          echo "Build submitted to EAS Build."
-          echo "Check the build at: https://expo.dev/accounts/lekiet0101/projects/chan-dan-gian"
+          APK_PATH=$(find android/app/build/outputs/apk/release -name "*.apk" | head -1)
+          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ github.run_number }}
+          path: ${{ steps.find-apk.outputs.apk_path }}
+          retention-days: 7
