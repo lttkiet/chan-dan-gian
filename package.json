@@ -6,7 +6,9 @@
     "expo": "~57.0.4",
     "expo-status-bar": "~57.0.0",
     "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-native": "0.86.0",
+    "react-native-web": "^0.21.2",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
@@ -26,17 +28,28 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "roots": ["<rootDir>/test", "<rootDir>/src"],
-    "testMatch": ["**/*.test.ts"],
-    "moduleFileExtensions": ["ts", "js"],
+    "roots": [
+      "<rootDir>/test",
+      "<rootDir>/src"
+    ],
+    "testMatch": [
+      "**/*.test.ts"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1"
     },
     "transform": {
-      "^.+\\.tsx?$": ["ts-jest", {
-        "tsconfig": "tsconfig.test.json",
-        "diagnostics": false
-      }]
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "tsconfig": "tsconfig.test.json",
+          "diagnostics": false
+        }
+      ]
     }
   },
   "private": true
