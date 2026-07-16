@@ -55,18 +55,22 @@ export interface AppStrings {
   loseTitle: string;
   winSubtitle: string;
   scoreLabel: string;
+  dichLabel: string;
   gaLabel: string;
   btnPlayAgain: string;
   btnBackToHome: string;
 
   // Settings screen
   settingsTitle: string;
+  sectionLanguage: string;
   sectionRegion: string;
   sectionChiChi: string;
   sectionGa: string;
   sectionU411: string;
   sectionU411Hint: string;
   sectionSpeed: string;
+  langVietnamese: string;
+  langEnglish: string;
   gaOn: string;
   gaOff: string;
   u411Off: string;
@@ -91,7 +95,47 @@ export interface AppStrings {
   chiChiBonus: string;
   chiChiLimited: string;
 
-  // Error messages
+  // Card rank names
+  rankNhi: string;
+  rankTam: string;
+  rankTu: string;
+  rankNgu: string;
+  rankLuc: string;
+  rankThat: string;
+  rankBat: string;
+  rankCuu: string;
+  rankChi: string;
+
+  // Card suit names
+  suitVan: string;
+  suitVan2: string;
+  suitSach: string;
+
+  // Cuoc (scoring combo) names
+  cuocXuong: string;
+  cuocUThong: string;
+  cuocChi: string;
+  cuocThienU: string;
+  cuocDiaU: string;
+  cuocTom: string;
+  cuocLeo: string;
+  cuocBachThu: string;
+  cuocBachThuChi: string;
+  cuocThienKhai: string;
+  cuocChiu: string;
+  cuocAnBon: string;
+  cuocBachDinh: string;
+  cuocDoRed: string;
+  cuocKinhTuChi: string;
+  cuocThapThanh: string;
+
+  // Player names
+  playerYou: string;
+  playerAI1: string;
+  playerAI2: string;
+  playerAI3: string;
+
+  // Error messages (from engine)
   errNocEmpty: string;
   errNoCardToChiu: string;
   errChiuNeed3: string;
@@ -155,17 +199,21 @@ const vi: AppStrings = {
   loseTitle: '😔 Bạn thua',
   winSubtitle: ' Ù — ',
   scoreLabel: 'Điểm: ',
+  dichLabel: 'Dì: ',
   gaLabel: 'Gà: ',
   btnPlayAgain: 'Chơi lại',
   btnBackToHome: 'Về trang chủ',
 
   settingsTitle: 'Cài đặt',
+  sectionLanguage: 'Ngôn ngữ',
   sectionRegion: 'Quy tắc vùng miền',
   sectionChiChi: 'Luật Chi Chi',
   sectionGa: 'Gà (cược thêm)',
   sectionU411: 'Ù 4-11',
   sectionU411Hint: 'Nếu bật, người Ù phải đạt ít nhất 4 điểm nếu không sẽ đền cho cả làng',
   sectionSpeed: 'Tốc độ hiệu ứng',
+  langVietnamese: 'Tiếng Việt',
+  langEnglish: 'English',
   gaOn: 'Bật',
   gaOff: 'Tắt',
   u411Off: 'Tắt',
@@ -186,6 +234,42 @@ const vi: AppStrings = {
   chiChiWild: 'Tự do',
   chiChiBonus: 'Chỉ tính điểm',
   chiChiLimited: 'Giới hạn',
+
+  rankNhi: 'Nhị',
+  rankTam: 'Tam',
+  rankTu: 'Tứ',
+  rankNgu: 'Ngũ',
+  rankLuc: 'Lục',
+  rankThat: 'Thất',
+  rankBat: 'Bát',
+  rankCuu: 'Cửu',
+  rankChi: 'Chi',
+
+  suitVan: 'Vạn',
+  suitVan2: 'Văn',
+  suitSach: 'Sách',
+
+  cuocXuong: 'Xuông',
+  cuocUThong: 'Thông',
+  cuocChi: 'Chì',
+  cuocThienU: 'Thiên Ù',
+  cuocDiaU: 'Địa Ù',
+  cuocTom: 'Tôm',
+  cuocLeo: 'Lèo',
+  cuocBachThu: 'Bạch Thủ',
+  cuocBachThuChi: 'Bạch Thủ Chi',
+  cuocThienKhai: 'Thiên Khai',
+  cuocChiu: 'Chíu',
+  cuocAnBon: 'Ăn Bòn',
+  cuocBachDinh: 'Bạch Định',
+  cuocDoRed: '8 Đỏ',
+  cuocKinhTuChi: 'Kính Tứ Chi',
+  cuocThapThanh: 'Thập Thành',
+
+  playerYou: 'Bạn',
+  playerAI1: 'AI 1',
+  playerAI2: 'AI 2',
+  playerAI3: 'AI 3',
 
   errNocEmpty: 'Nọc hết bài',
   errNoCardToChiu: 'Không có bài để chíu',
@@ -249,17 +333,21 @@ const en: AppStrings = {
   loseTitle: '😔 You lose',
   winSubtitle: ' won — ',
   scoreLabel: 'Score: ',
+  dichLabel: 'Dich: ',
   gaLabel: 'Ga: ',
   btnPlayAgain: 'Play Again',
   btnBackToHome: 'Back to Home',
 
   settingsTitle: 'Settings',
+  sectionLanguage: 'Language',
   sectionRegion: 'Regional Rules',
   sectionChiChi: 'Chi Chi Rules',
   sectionGa: 'Ga (bonus bet)',
   sectionU411: 'U 4-11',
   sectionU411Hint: 'If enabled, the winner must score at least 4 points or pay the whole table',
   sectionSpeed: 'Animation Speed',
+  langVietnamese: 'Tiếng Việt',
+  langEnglish: 'English',
   gaOn: 'On',
   gaOff: 'Off',
   u411Off: 'Off',
@@ -280,6 +368,42 @@ const en: AppStrings = {
   chiChiWild: 'Wild',
   chiChiBonus: 'Bonus only',
   chiChiLimited: 'Limited',
+
+  rankNhi: 'Nhi',
+  rankTam: 'Tam',
+  rankTu: 'Tu',
+  rankNgu: 'Ngu',
+  rankLuc: 'Luc',
+  rankThat: 'That',
+  rankBat: 'Bat',
+  rankCuu: 'Cuu',
+  rankChi: 'Chi Chi',
+
+  suitVan: 'Van',
+  suitVan2: 'Van',
+  suitSach: 'Sach',
+
+  cuocXuong: 'Xuong',
+  cuocUThong: 'Thong',
+  cuocChi: 'Chi',
+  cuocThienU: 'Thien U',
+  cuocDiaU: 'Dia U',
+  cuocTom: 'Tom',
+  cuocLeo: 'Leo',
+  cuocBachThu: 'Bach Thu',
+  cuocBachThuChi: 'Bach Thu Chi',
+  cuocThienKhai: 'Thien Khai',
+  cuocChiu: 'Chiu',
+  cuocAnBon: 'An Bon',
+  cuocBachDinh: 'Bach Dinh',
+  cuocDoRed: '8 Red',
+  cuocKinhTuChi: 'Kinh Tu Chi',
+  cuocThapThanh: 'Thap Thanh',
+
+  playerYou: 'You',
+  playerAI1: 'AI 1',
+  playerAI2: 'AI 2',
+  playerAI3: 'AI 3',
 
   errNocEmpty: 'Draw pile is empty',
   errNoCardToChiu: 'No card to chiu',

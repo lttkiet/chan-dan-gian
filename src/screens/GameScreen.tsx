@@ -5,12 +5,12 @@ import { CardPile } from '../components/CardPile';
 import { createGameEngine, GameEngine } from '../engine/game_engine';
 import { createAiPlayer } from '../ai/ai_player';
 import { GameState, GamePhase, PlayerAction } from '../models/game_state';
-import { Card, cardName } from '../models/card';
+import { Card, cardName, cardNameI18n } from '../models/card';
 import { handSize } from '../models/hand';
 import { drawPileCount } from '../models/deck';
 import { analyzeHand } from '../engine/meld_analyzer';
 import { GameConfig, DEFAULT_CONFIG } from '../models/game_config';
-import { CuocResult, CUOC_TABLE } from '../engine/scoring';
+import { CuocResult, CUOC_TABLE, cuocNameI18n } from '../engine/scoring';
 import { useTranslation } from '../i18n';
 import { saveGame, clearGame, SavedGame } from '../utils/storage';
 
@@ -23,7 +23,7 @@ interface GameScreenProps {
 
 export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenSettings, onBackToHome }: GameScreenProps) {
   const { t } = useTranslation();
-  const [engine] = useState(() => createGameEngine(config));
+  const [engine] = useState(() => createGameEngine(config, [t.playerYou, t.playerAI1, t.playerAI2, t.playerAI3]));
   const [ai] = useState(() => createAiPlayer());
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -157,6 +157,16 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
     setGameState(newState);
   };
 
+  const getErrorMessage = (error: any): string => {
+    const msg = String(error.message || error);
+    if (msg.includes('Nọc is empty')) return t.errNocEmpty;
+    if (msg.includes('No card to eat')) return t.errNoCardToEat;
+    if (msg.includes('No card to chiu')) return t.errNoCardToChiu;
+    if (msg.includes('need 3 matching')) return t.errChiuNeed3;
+    if (msg.includes('Cannot discard a Chăn')) return t.errCannotDiscardChan;
+    return msg;
+  };
+
   const handleDraw = () => {
     if (!gameState || gameState.turn.currentPlayerId !== 0) return;
     try {
@@ -165,7 +175,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
       setMessage(t.msgDraw);
       setPendingDiscard(true);
     } catch (e: any) {
-      setMessage(e.message);
+      setMessage(getErrorMessage(e));
     }
   };
 
@@ -182,7 +192,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
       setMessage(t.msgEat);
       setPendingDiscard(true);
     } catch (e: any) {
-      setMessage(e.message);
+      setMessage(getErrorMessage(e));
     }
   };
 
@@ -208,7 +218,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
       setMessage(t.msgChiu);
       setPendingDiscard(true);
     } catch (e: any) {
-      setMessage(e.message);
+      setMessage(getErrorMessage(e));
     }
   };
 
@@ -242,7 +252,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
 
       setMessage(t.msgDiscarded);
     } catch (e: any) {
-      setMessage(e.message);
+      setMessage(getErrorMessage(e));
     }
   };
 
@@ -342,7 +352,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
 
           {topDiscardCard && (
             <Text style={styles.discardInfo}>
-              {t.discardInfo}{cardName(topDiscardCard)}
+              {t.discardInfo}{cardNameI18n(topDiscardCard, t)}
             </Text>
           )}
 
@@ -434,11 +444,11 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
             {gameResult?.cuocResult && (
               <View style={styles.cuocInfo}>
                 <Text style={styles.cuocText}>
-                  {t.scoreLabel}{gameResult.cuocResult.totalPoints} | Dì: {gameResult.cuocResult.totalDich}
+                  {t.scoreLabel}{gameResult.cuocResult.totalPoints} | {t.dichLabel}{gameResult.cuocResult.totalDich}
                   {gameResult.cuocResult.gaCount > 0 ? ` | ${t.gaLabel}${gameResult.cuocResult.gaCount}` : ''}
                 </Text>
                 <Text style={styles.cuocList}>
-                  {gameResult.cuocResult.cuocs.map(c => CUOC_TABLE[c].name).join(', ')}
+                  {gameResult.cuocResult.cuocs.map(c => cuocNameI18n(c, t)).join(', ')}
                 </Text>
               </View>
             )}

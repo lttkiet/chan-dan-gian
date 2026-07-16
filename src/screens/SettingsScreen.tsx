@@ -35,7 +35,7 @@ export default function SettingsScreen({ config, onSave, onBack }: SettingsScree
 
       {/* Language */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Language / Ngôn ngữ</Text>
+        <Text style={styles.sectionTitle}>{t.sectionLanguage}</Text>
         <View style={styles.optionRow}>
           {(['vi', 'en'] as Language[]).map(lang => (
             <TouchableOpacity
@@ -44,7 +44,7 @@ export default function SettingsScreen({ config, onSave, onBack }: SettingsScree
               onPress={() => setLanguage(lang)}
             >
               <Text style={[styles.optionText, language === lang && styles.optionTextActive]}>
-                {lang === 'vi' ? 'Tiếng Việt' : 'English'}
+                {lang === 'vi' ? t.langVietnamese : t.langEnglish}
               </Text>
             </TouchableOpacity>
           ))}

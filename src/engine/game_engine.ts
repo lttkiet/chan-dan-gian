@@ -27,14 +27,15 @@ export interface GameEngine {
   getEatOptions(state: GameState, playerId: number): { cardId: string; pairedCards: string[] }[];
 }
 
-export function createGameEngine(config: GameConfig = DEFAULT_CONFIG): GameEngine {
+export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerNames?: string[]): GameEngine {
   let currentState: GameState | null = null;
+  const names = playerNames || ['Bạn', 'AI 1', 'AI 2', 'AI 3'];
 
   return {
-    getState: () => currentState || createGameState(['Bạn', 'AI 1', 'AI 2', 'AI 3']),
+    getState: () => currentState || createGameState(names),
 
     setupGame(seed?: number): GameState {
-      const state = createGameState(['Bạn', 'AI 1', 'AI 2', 'AI 3']);
+      const state = createGameState(names);
       let deck = createDeck();
       deck = shuffleDeck(deck, seed);
       currentState = { ...state, deck, turn: { ...state.turn, phase: GamePhase.Dealing } };

@@ -1,3 +1,5 @@
+import { AppStrings } from '../i18n/strings';
+
 export enum Suit {
   Van = 'van',     // 萬 Vạn
   Van2 = 'van2',   // 文 Văn
@@ -78,6 +80,29 @@ export function isChiChi(card: Card): boolean {
 
 export function cardName(card: Card): string {
   return `${RANK_NAMES[card.rank]} ${SUIT_NAMES[card.suit]}`;
+}
+
+// i18n-aware card name
+const RANK_KEYS: Record<Rank, keyof AppStrings> = {
+  [Rank.Nhi]: 'rankNhi',
+  [Rank.Tam]: 'rankTam',
+  [Rank.Tu]: 'rankTu',
+  [Rank.Ngu]: 'rankNgu',
+  [Rank.Luc]: 'rankLuc',
+  [Rank.That]: 'rankThat',
+  [Rank.Bat]: 'rankBat',
+  [Rank.Cuu]: 'rankCuu',
+  [Rank.Chi]: 'rankChi',
+};
+
+const SUIT_KEYS: Record<Suit, keyof AppStrings> = {
+  [Suit.Van]: 'suitVan',
+  [Suit.Van2]: 'suitVan2',
+  [Suit.Sach]: 'suitSach',
+};
+
+export function cardNameI18n(card: Card, t: AppStrings): string {
+  return `${t[RANK_KEYS[card.rank]]} ${t[SUIT_KEYS[card.suit]]}`;
 }
 
 export function createCard(suit: Suit, rank: Rank): Card {

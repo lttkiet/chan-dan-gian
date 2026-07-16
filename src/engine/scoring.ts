@@ -2,6 +2,7 @@ import { Card, Rank, Suit, isRedCard, isRedScoreCard, isChiChi } from '../models
 import { Hand } from '../models/hand';
 import { WinType } from './win_checker';
 import { analyzeHand } from './meld_analyzer';
+import { AppStrings } from '../i18n/strings';
 
 // Cước types with their point values
 export enum CuocType {
@@ -28,6 +29,7 @@ export interface CuocDef {
   readonly type: CuocType;
   readonly name: string;
   readonly nameVi: string;
+  readonly nameKey: keyof AppStrings;
   readonly points: number;
   readonly dich: number;
   readonly description: string;
@@ -39,6 +41,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.Xuong,
     name: 'Xuông',
     nameVi: 'Ù Xuông',
+    nameKey: 'cuocXuong',
     points: 0,
     dich: 1,
     description: 'Basic Ù with no special combinations',
@@ -47,6 +50,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.UThong,
     name: 'Thông',
     nameVi: 'Ù Thông',
+    nameKey: 'cuocUThong',
     points: 3,
     dich: 1,
     description: 'Win 2 consecutive games',
@@ -55,6 +59,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.Chi,
     name: 'Chì',
     nameVi: 'Chì',
+    nameKey: 'cuocChi',
     points: 3,
     dich: 1,
     description: 'Win on your turn',
@@ -63,6 +68,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.ThienU,
     name: 'Thiên Ù',
     nameVi: 'Thiên Ù',
+    nameKey: 'cuocThienU',
     points: 3,
     dich: 1,
     description: 'Win immediately after dealing',
@@ -71,6 +77,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.DiaU,
     name: 'Địa Ù',
     nameVi: 'Địa Ù',
+    nameKey: 'cuocDiaU',
     points: 2,
     dich: 1,
     description: 'Win on first Nọc draw',
@@ -79,6 +86,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.Tom,
     name: 'Tôm',
     nameVi: 'Tôm',
+    nameKey: 'cuocTom',
     points: 4,
     dich: 1,
     description: 'Has Tam Vạn + Tam Sách + Thất Văn',
@@ -87,6 +95,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.Leo,
     name: 'Lèo',
     nameVi: 'Lèo',
+    nameKey: 'cuocLeo',
     points: 5,
     dich: 2,
     description: 'Has Cửu Vạn + Bát Sách + Chi Chi',
@@ -95,6 +104,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.BachThu,
     name: 'Bạch Thủ',
     nameVi: 'Bạch Thủ',
+    nameKey: 'cuocBachThu',
     points: 4,
     dich: 1,
     description: 'Win with exactly 6 Chăn',
@@ -103,6 +113,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.BachThuChi,
     name: 'Bạch Thủ Chi',
     nameVi: 'Bạch Thủ Chi',
+    nameKey: 'cuocBachThuChi',
     points: 4,
     dich: 3,
     description: 'Bạch Thủ waiting on Chi Chi',
@@ -111,6 +122,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.ThienKhai,
     name: 'Thiên Khai',
     nameVi: 'Thiên Khai',
+    nameKey: 'cuocThienKhai',
     points: 5,
     dich: 2,
     description: '4 identical cards at deal',
@@ -119,6 +131,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.Chiu,
     name: 'Chíu',
     nameVi: 'Chíu',
+    nameKey: 'cuocChiu',
     points: 5,
     dich: 2,
     description: '4 identical via chiu action',
@@ -127,6 +140,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.AnBon,
     name: 'Ăn Bòn',
     nameVi: 'Ăn Bòn',
+    nameKey: 'cuocAnBon',
     points: 5,
     dich: 2,
     description: 'Meld 2 Chăn from same rank',
@@ -135,6 +149,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.BachDinh,
     name: 'Bạch Định',
     nameVi: 'Bạch Định',
+    nameKey: 'cuocBachDinh',
     points: 7,
     dich: 4,
     description: 'All cards are black',
@@ -143,6 +158,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.DoRed,
     name: '8 Đỏ',
     nameVi: 'Tám Đỏ',
+    nameKey: 'cuocDoRed',
     points: 8,
     dich: 5,
     description: '8 red cards in hand',
@@ -151,6 +167,7 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.KinhTuChi,
     name: 'Kính Tứ Chi',
     nameVi: 'Kính Tứ Chi',
+    nameKey: 'cuocKinhTuChi',
     points: 12,
     dich: 9,
     description: '4 Chi Chi cards',
@@ -159,11 +176,17 @@ export const CUOC_TABLE: Record<CuocType, CuocDef> = {
     type: CuocType.ThapThanh,
     name: 'Thập Thành',
     nameVi: 'Thập Thành',
+    nameKey: 'cuocThapThanh',
     points: 12,
     dich: 9,
     description: '10 Chăn (all melds are Chăn)',
   },
 };
+
+// Helper: get i18n cuoc name
+export function cuocNameI18n(cuoc: CuocType, t: AppStrings): string {
+  return t[CUOC_TABLE[cuoc].nameKey];
+}
 
 export interface CuocResult {
   readonly cuocs: CuocType[];
