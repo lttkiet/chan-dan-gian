@@ -6,7 +6,7 @@ import GameScreen from './src/screens/GameScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import { GameConfig, DEFAULT_CONFIG } from './src/models/game_config';
 import { I18nProvider } from './src/i18n';
-import { loadGame, clearGame, SavedGame } from './src/utils/storage';
+import { loadGame, SavedGame } from './src/utils/storage';
 
 type Screen = 'home' | 'game' | 'settings';
 

@@ -1,4 +1,4 @@
-import { Card, Rank, Suit, isChiChi, isRedCard } from './card';
+import { Card, Rank, Suit, isChiChi, isRedScoreCard } from './card';
 
 export interface Hand {
   readonly cards: Card[];
@@ -67,5 +67,5 @@ export function cardsOfSuit(hand: Hand, suit: Suit): Card[] {
 
 // Count red score cards (for "8 Đỏ" cước)
 export function countRedScoreCards(hand: Hand): number {
-  return hand.cards.filter(c => isRedCard(c)).length;
+  return hand.cards.filter(c => isRedScoreCard(c)).length;
 }

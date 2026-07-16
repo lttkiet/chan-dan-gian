@@ -27,10 +27,13 @@ export async function loadGame(): Promise<SavedGame | null> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const data = JSON.parse(raw) as SavedGame;
-    if (!data.gameState || !data.config) return null;
-    if (data.gameState.turn.phase !== 'playing') return null;
-    return data;
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== 'object') return null;
+    if (!data.gameState || typeof data.gameState !== 'object') return null;
+    if (!data.config || typeof data.config !== 'object') return null;
+    if (!data.gameState.turn || data.gameState.turn.phase !== 'playing') return null;
+    if (!Array.isArray(data.gameState.players)) return null;
+    return data as SavedGame;
   } catch {
     return null;
   }

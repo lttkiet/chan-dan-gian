@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "chan-dan-gian",
+    "name": "Chắn Dân Gian",
     "slug": "chan-dan-gian",
     "version": "1.0.0",
     "orientation": "landscape",
@@ -21,13 +21,54 @@
     },
     "web": {
       "bundler": "metro",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "name": "Chắn Dân Gian",
+      "shortName": "Chắn",
+      "description": "Trò chơi Chắn dân gian - 1 người chơi vs 3 AI",
+      "lang": "vi",
+      "dir": "ltr",
+      "scope": "/",
+      "startUrl": "/",
+      "display": "standalone",
+      "orientation": "landscape",
+      "themeColor": "#1a472a",
+      "backgroundColor": "#1a472a",
+      "barStyle": "black-translucent",
+      "preferRelatedApplications": false,
+      "icon": [
+        {
+          "src": "./assets/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        },
+        {
+          "src": "./assets/icon-512.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "any"
+        },
+        {
+          "src": "./assets/icon-512.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "maskable"
+        }
+      ],
+      "splash": {
+        "backgroundColor": "#1a472a",
+        "resizeMode": "contain",
+        "image": "./assets/splash-icon.png"
+      }
     },
     "extra": {
       "eas": {
         "projectId": "8fe97f92-6971-488d-acfe-c3d0d058acba"
       }
     },
-    "owner": "lekiet0101"
+    "owner": "lekiet0101",
+    "experiments": {
+      "baseUrl": "/chan-dan-gian"
+    }
   }
 }

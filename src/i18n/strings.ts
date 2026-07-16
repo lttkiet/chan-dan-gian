@@ -106,6 +106,7 @@ export interface AppStrings {
   // Persistent state
   continueGame: string;
   savedAt: string;
+  gameRestored: string;
 }
 
 const vi: AppStrings = {
@@ -199,6 +200,7 @@ const vi: AppStrings = {
 
   continueGame: 'Tiếp tục chơi',
   savedAt: 'Đã lưu: ',
+  gameRestored: 'Trò chơi đã được khôi phục',
 };
 
 const en: AppStrings = {
@@ -292,6 +294,7 @@ const en: AppStrings = {
 
   continueGame: 'Continue',
   savedAt: 'Saved: ',
+  gameRestored: 'Game restored',
 };
 
 export const STRINGS: Record<Language, AppStrings> = { vi, en };

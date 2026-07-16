@@ -1,7 +1,6 @@
 import { Card, Suit, Rank, createCard, getAllCardTypes } from './card';
 
 const COPIES_PER_CARD = 4;
-const TOTAL_CARDS = 100;
 
 export interface Deck {
   readonly cards: Card[];

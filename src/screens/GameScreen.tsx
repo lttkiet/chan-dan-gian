@@ -5,12 +5,12 @@ import { CardPile } from '../components/CardPile';
 import { createGameEngine, GameEngine } from '../engine/game_engine';
 import { createAiPlayer } from '../ai/ai_player';
 import { GameState, GamePhase, PlayerAction } from '../models/game_state';
-import { Card } from '../models/card';
+import { Card, cardName } from '../models/card';
 import { handSize } from '../models/hand';
 import { drawPileCount } from '../models/deck';
 import { analyzeHand } from '../engine/meld_analyzer';
 import { GameConfig, DEFAULT_CONFIG } from '../models/game_config';
-import { CuocResult } from '../engine/scoring';
+import { CuocResult, CUOC_TABLE } from '../engine/scoring';
 import { useTranslation } from '../i18n';
 import { saveGame, clearGame, SavedGame } from '../utils/storage';
 
@@ -47,15 +47,17 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
       engine.loadState(savedGame.gameState);
       setGameState(savedGame.gameState);
       setGameStarted(true);
-      setMessage('Trò chơi đã được khôi phục');
+      setMessage(t.gameRestored);
     }
   }, []);
 
-  // Auto-save on state change
+  // Auto-save on state change (debounced)
   useEffect(() => {
-    if (gameState && gameStarted && gameState.turn.phase === GamePhase.Playing && !gameResult) {
+    if (!gameState || !gameStarted || gameState.turn.phase !== GamePhase.Playing || gameResult) return;
+    const timer = setTimeout(() => {
       saveGame(gameState, configRef.current);
-    }
+    }, 500);
+    return () => clearTimeout(timer);
   }, [gameState, gameStarted, gameResult]);
 
   // Keep ref in sync
@@ -295,14 +297,14 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
           <Text style={styles.backBtnText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.topBarTitle}>{t.topBarTitle}</Text>
-        <View style={{ width: 30 }} />
+        <View style={styles.topBarSpacer} />
       </View>
 
       {/* Main area: left AI, center pile, right AI */}
       <View style={styles.mainArea}>
         {/* Left: AI 1 */}
         <View style={styles.sideAI}>
-          {[1, 2, 3].filter(i => i === 1).map(i => (
+          {[1].map(i => (
             <View key={i} style={[
               styles.aiPlayer,
               gameState.turn.currentPlayerId === i && styles.aiPlayerActive,
@@ -340,7 +342,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
 
           {topDiscardCard && (
             <Text style={styles.discardInfo}>
-              {t.discardInfo}{topDiscardCard.rank} {topDiscardCard.suit}
+              {t.discardInfo}{cardName(topDiscardCard)}
             </Text>
           )}
 
@@ -354,7 +356,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
 
         {/* Right: AI 2 + AI 3 */}
         <View style={styles.sideAI}>
-          {[1, 2, 3].filter(i => i === 2 || i === 3).map(i => (
+          {[2, 3].map(i => (
             <View key={i} style={[
               styles.aiPlayer,
               gameState.turn.currentPlayerId === i && styles.aiPlayerActive,
@@ -436,7 +438,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
                   {gameResult.cuocResult.gaCount > 0 ? ` | ${t.gaLabel}${gameResult.cuocResult.gaCount}` : ''}
                 </Text>
                 <Text style={styles.cuocList}>
-                  {gameResult.cuocResult.cuocs.join(', ')}
+                  {gameResult.cuocResult.cuocs.map(c => CUOC_TABLE[c].name).join(', ')}
                 </Text>
               </View>
             )}
@@ -490,6 +492,9 @@ const styles = StyleSheet.create({
     color: '#f1c40f',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  topBarSpacer: {
+    width: 30,
   },
   title: {
     fontSize: 32,

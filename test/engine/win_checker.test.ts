@@ -1,4 +1,5 @@
-import { checkWin, WinType, hasTom, hasLeo } from '../../src/engine/win_checker';
+import { checkWin, WinType } from '../../src/engine/win_checker';
+import { hasTom, hasLeo } from '../../src/engine/scoring';
 import { createCard, Suit, Rank } from '../../src/models/card';
 import { Hand, addCard, createHand } from '../../src/models/hand';
 
@@ -128,48 +129,43 @@ describe('Win Checker', () => {
 
   describe('hasTom', () => {
     test('detects Tôm combination', () => {
-      const cards = [
+      const allCards = [
         createCard(Suit.Van, Rank.Tam),
         createCard(Suit.Sach, Rank.Tam),
         createCard(Suit.Van2, Rank.That),
+        createCard(Suit.Van, Rank.Nhi),
       ];
-      const hand = makeHand([
-        [Suit.Van, Rank.Tam],
-        [Suit.Sach, Rank.Tam],
-        [Suit.Van2, Rank.That],
-      ]);
-      const drawnCard = createCard(Suit.Van, Rank.Nhi);
-      expect(hasTom(hand, drawnCard)).toBe(true);
+      expect(hasTom(allCards)).toBe(true);
     });
 
     test('returns false without all 3 cards', () => {
-      const hand = makeHand([
-        [Suit.Van, Rank.Tam],
-        [Suit.Sach, Rank.Tam],
-      ]);
-      const drawnCard = createCard(Suit.Van, Rank.Nhi);
-      expect(hasTom(hand, drawnCard)).toBe(false);
+      const allCards = [
+        createCard(Suit.Van, Rank.Tam),
+        createCard(Suit.Sach, Rank.Tam),
+        createCard(Suit.Van, Rank.Nhi),
+      ];
+      expect(hasTom(allCards)).toBe(false);
     });
   });
 
   describe('hasLeo', () => {
     test('detects Lèo combination', () => {
-      const hand = makeHand([
-        [Suit.Van, Rank.Cuu],
-        [Suit.Sach, Rank.Bat],
-        [Suit.Van, Rank.Chi],
-      ]);
-      const drawnCard = createCard(Suit.Van, Rank.Nhi);
-      expect(hasLeo(hand, drawnCard)).toBe(true);
+      const allCards = [
+        createCard(Suit.Van, Rank.Cuu),
+        createCard(Suit.Sach, Rank.Bat),
+        createCard(Suit.Van, Rank.Chi),
+        createCard(Suit.Van, Rank.Nhi),
+      ];
+      expect(hasLeo(allCards)).toBe(true);
     });
 
     test('returns false without all 3 cards', () => {
-      const hand = makeHand([
-        [Suit.Van, Rank.Cuu],
-        [Suit.Sach, Rank.Bat],
-      ]);
-      const drawnCard = createCard(Suit.Van, Rank.Nhi);
-      expect(hasLeo(hand, drawnCard)).toBe(false);
+      const allCards = [
+        createCard(Suit.Van, Rank.Cuu),
+        createCard(Suit.Sach, Rank.Bat),
+        createCard(Suit.Van, Rank.Nhi),
+      ];
+      expect(hasLeo(allCards)).toBe(false);
     });
   });
 
@@ -222,23 +218,21 @@ describe('Win Checker', () => {
     });
 
     test('hasTom returns true when drawn card provides missing Tôm card', () => {
-      const hand = makeHand([
-        [Suit.Van, Rank.Tam],
-        [Suit.Sach, Rank.Tam],
-        // Missing: [Suit.Van2, Rank.That]
-      ]);
-      const drawnCard = createCard(Suit.Van2, Rank.That);
-      expect(hasTom(hand, drawnCard)).toBe(true);
+      const allCards = [
+        createCard(Suit.Van, Rank.Tam),
+        createCard(Suit.Sach, Rank.Tam),
+        createCard(Suit.Van2, Rank.That),
+      ];
+      expect(hasTom(allCards)).toBe(true);
     });
 
     test('hasLeo returns true when drawn card provides missing Leo card', () => {
-      const hand = makeHand([
-        [Suit.Van, Rank.Cuu],
-        [Suit.Sach, Rank.Bat],
-        // Missing: [Suit.Van, Rank.Chi]
-      ]);
-      const drawnCard = createCard(Suit.Van, Rank.Chi);
-      expect(hasLeo(hand, drawnCard)).toBe(true);
+      const allCards = [
+        createCard(Suit.Van, Rank.Cuu),
+        createCard(Suit.Sach, Rank.Bat),
+        createCard(Suit.Van, Rank.Chi),
+      ];
+      expect(hasLeo(allCards)).toBe(true);
     });
   });
 });

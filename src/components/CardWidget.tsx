@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Card, Rank, Suit, RANK_CHARS, SUIT_CHARS, isRedCard } from '../models/card';
+import { Card, RANK_CHARS, SUIT_CHARS, isRedCard } from '../models/card';
 
 interface CardWidgetProps {
   card: Card;
@@ -10,12 +10,6 @@ interface CardWidgetProps {
   onPress?: () => void;
   small?: boolean;
 }
-
-const SUIT_BG: Record<Suit, string> = {
-  [Suit.Van]: '#fdf6e3',
-  [Suit.Van2]: '#fdf6e3',
-  [Suit.Sach]: '#fdf6e3',
-};
 
 export function CardWidget({ card, faceDown = false, selected = false, highlighted = false, onPress, small = false }: CardWidgetProps) {
   const size = small ? styles.small : styles.normal;

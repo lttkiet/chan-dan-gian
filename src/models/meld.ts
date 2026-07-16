@@ -5,6 +5,7 @@ export enum MeldType {
   Chan = 'chan',       // Chắn: 2 identical cards
   Ca = 'ca',           // Cạ: 2 cards same rank, different suit
   BaDau = 'ba_dau',   // Ba Đầu: 3 cards same rank, different suits
+  Chiu = 'chiu',       // Chíu: 4 identical cards
   QuanLe = 'quan_le', // Què: unmatched single card
 }
 
@@ -23,12 +24,17 @@ export interface BaDauMeld {
   readonly cards: [Card, Card, Card]; // same rank, 3 different suits
 }
 
+export interface ChiuMeld {
+  readonly type: MeldType.Chiu;
+  readonly cards: [Card, Card, Card, Card]; // 4 identical cards
+}
+
 export interface QuanLe {
   readonly type: MeldType.QuanLe;
   readonly card: Card; // single unmatched card
 }
 
-export type Meld = ChanMeld | CaMeld | BaDauMeld;
+export type Meld = ChanMeld | CaMeld | BaDauMeld | ChiuMeld;
 
 export type MeldOrLe = Meld | QuanLe;
 
@@ -63,6 +69,17 @@ export function createBaDau(c1: Card, c2: Card, c3: Card): BaDauMeld {
   return { type: MeldType.BaDau, cards: [c1, c2, c3] };
 }
 
+// Create a Chíu meld from four identical cards
+export function createChiu(c1: Card, c2: Card, c3: Card, c4: Card): ChiuMeld {
+  if (c1.rank !== c2.rank || c2.rank !== c3.rank || c3.rank !== c4.rank) {
+    throw new Error(`Cannot form Chíu: all cards must have same rank`);
+  }
+  if (c1.suit !== c2.suit || c2.suit !== c3.suit || c3.suit !== c4.suit) {
+    throw new Error(`Cannot form Chíu: all cards must have same suit`);
+  }
+  return { type: MeldType.Chiu, cards: [c1, c2, c3, c4] };
+}
+
 export function isChan(meld: MeldOrLe): meld is ChanMeld {
   return meld.type === MeldType.Chan;
 }
@@ -75,6 +92,10 @@ export function isBaDau(meld: MeldOrLe): meld is BaDauMeld {
   return meld.type === MeldType.BaDau;
 }
 
+export function isChiu(meld: MeldOrLe): meld is ChiuMeld {
+  return meld.type === MeldType.Chiu;
+}
+
 export function isQuanLe(meld: MeldOrLe): meld is QuanLe {
   return meld.type === MeldType.QuanLe;
 }
@@ -85,7 +106,7 @@ export function meldCards(meld: MeldOrLe): Card[] {
   return [...meld.cards];
 }
 
-// Count Chăn in a list of melds
+// Count Chăn in a list of melds (Chíu counts as 2 Chăn)
 export function countChan(melds: MeldOrLe[]): number {
-  return melds.filter(isChan).length;
+  return melds.filter(isChan).length + melds.filter(isChiu).length * 2;
 }

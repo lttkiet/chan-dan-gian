@@ -318,13 +318,13 @@ export function calculateCuoc(
   return { cuocs, totalPoints, totalDich, gaCount };
 }
 
-function hasTom(allCards: Card[]): boolean {
+export function hasTom(allCards: Card[]): boolean {
   return allCards.some(c => c.rank === Rank.Tam && c.suit === Suit.Van) &&
     allCards.some(c => c.rank === Rank.Tam && c.suit === Suit.Sach) &&
     allCards.some(c => c.rank === Rank.That && c.suit === Suit.Van2);
 }
 
-function hasLeo(allCards: Card[]): boolean {
+export function hasLeo(allCards: Card[]): boolean {
   return allCards.some(c => c.rank === Rank.Cuu && c.suit === Suit.Van) &&
     allCards.some(c => c.rank === Rank.Bat && c.suit === Suit.Sach) &&
     allCards.some(c => c.rank === Rank.Chi);

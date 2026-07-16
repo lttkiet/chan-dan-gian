@@ -60,20 +60,16 @@ export const SUIT_CHARS: Record<Suit, string> = {
   [Suit.Sach]: '索',
 };
 
-// Chi Chi is red, all others are black
+// 4 red cards: Chi Chi, Cửu Vạn, Bát Sách, Thất Văn
 export function isRedCard(card: Card): boolean {
   return card.rank === Rank.Chi ||
-    card.rank === Rank.Cuu ||
-    card.rank === Rank.Bat ||
-    card.rank === Rank.That;
-}
-
-// Only specific red cards count for "8 Đỏ" scoring
-export function isRedScoreCard(card: Card): boolean {
-  return card.rank === Rank.Chi ||
     (card.rank === Rank.Cuu && card.suit === Suit.Van) ||
+    (card.rank === Rank.Bat && card.suit === Suit.Sach) ||
     (card.rank === Rank.That && card.suit === Suit.Van2);
 }
+
+// Alias — same 4 red cards used for both display and "8 Đỏ" scoring
+export const isRedScoreCard = isRedCard;
 
 // Chi Chi has no suit (only one Chi card type)
 export function isChiChi(card: Card): boolean {

@@ -1,0 +1,37 @@
+{
+  "short_name": "Chắn",
+  "name": "Chắn Dân Gian",
+  "description": "Trò chơi Chắn dân gian - 1 người chơi vs 3 AI",
+  "icons": [
+    {
+      "src": "/chan-dan-gian/favicon.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "/chan-dan-gian/logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/chan-dan-gian/logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "/chan-dan-gian/logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/chan-dan-gian/",
+  "scope": "/chan-dan-gian/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#1a472a",
+  "theme_color": "#1a472a",
+  "lang": "vi",
+  "dir": "ltr",
+  "categories": ["games", "entertainment"]
+}

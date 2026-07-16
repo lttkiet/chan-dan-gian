@@ -23,11 +23,14 @@ describe('Game Engine', () => {
     state = engine.dealCards();
     expect(state.turn.phase).toBe(GamePhase.Playing);
 
-    for (const player of state.players) {
-      expect(handSize(player.hand)).toBe(19);
+    // Dealer (player 0) gets 20 cards, others get 19
+    expect(handSize(state.players[0].hand)).toBe(20);
+    for (let i = 1; i < 4; i++) {
+      expect(handSize(state.players[i].hand)).toBe(19);
     }
 
-    expect(drawPileCount(state.deck)).toBe(24);
+    // 100 - (20 + 19*3) = 100 - 77 = 23
+    expect(drawPileCount(state.deck)).toBe(23);
   });
 
   test('draw from nọc adds a card to hand', () => {

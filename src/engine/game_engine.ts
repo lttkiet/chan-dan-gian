@@ -6,6 +6,7 @@ import { analyzeHand, canChiu as detectChiu, wouldFormChan, wouldFormCa } from '
 import { checkWin, WinType } from './win_checker';
 import { calculateCuoc, CuocResult } from './scoring';
 import { GameConfig, DEFAULT_CONFIG } from '../models/game_config';
+import { createChiu } from '../models/meld';
 
 const TOTAL_PLAYERS = 4;
 const CARDS_PER_PLAYER = 19;
@@ -45,7 +46,7 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG): GameEngin
       let deck = currentState.deck;
       const players = [...currentState.players];
 
-      // Deal 19 cards to each player
+      // Deal 19 cards to each player, then 1 extra to dealer (player 0)
       for (let round = 0; round < CARDS_PER_PLAYER; round++) {
         for (let p = 0; p < TOTAL_PLAYERS; p++) {
           const { card, deck: newDeck } = drawCard(deck);
@@ -56,6 +57,14 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG): GameEngin
           };
         }
       }
+
+      // Dealer gets 1 extra card (20 total)
+      const { card: extraCard, deck: afterExtra } = drawCard(deck);
+      deck = afterExtra;
+      players[0] = {
+        ...players[0],
+        hand: addCard(players[0].hand, extraCard),
+      };
 
       // Sort each player's hand
       for (let p = 0; p < TOTAL_PLAYERS; p++) {
@@ -94,8 +103,7 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG): GameEngin
         hand: newHand,
       };
 
-      // Check if the player can eat the drawn card or chiu
-      const canEat = wouldFormChan(newHand, card) || wouldFormCa(newHand, card);
+      // Check if the player can chiu the drawn card
       const canChiuVal = detectChiu(newHand, card);
 
       currentState = {
@@ -106,7 +114,7 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG): GameEngin
           ...state.turn,
           drawnCard: card,
           hasDrawnThisTurn: true,
-          canEat: canEat,
+          canEat: false,
           canChiu: canChiuVal,
           lastAction: PlayerAction.Draw,
         },
@@ -173,16 +181,15 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG): GameEngin
       }
 
       // Create a meld from the 4 cards
-      const chiuMeld = {
-        type: 'chan' as const,
-        cards: matchingCards.slice(0, 3).concat(chiuSource) as [Card, Card, Card, Card],
-      };
+      const chiuMeld = createChiu(
+        matchingCards[0], matchingCards[1], matchingCards[2], chiuSource
+      );
 
       const newPlayers = [...state.players];
       newPlayers[playerId] = {
         ...player,
         hand: newHand,
-        melds: [...player.melds, chiuMeld as any],
+        melds: [...player.melds, chiuMeld],
       };
 
       // If chiu from discard pile, remove the card from discard pile
@@ -369,12 +376,16 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG): GameEngin
       if (!lastDiscard) return [];
 
       const options: { cardId: string; pairedCards: string[] }[] = [];
+      const seenPairs = new Set<string>();
 
       // Find matching cards in hand: same rank (for Chăn or Cạ)
       for (const handCard of player.hand.cards) {
         if (handCard.rank === lastDiscard.rank) {
-          // Same rank = potential eat (Chăn if same suit, Cạ if different suit)
-          options.push({ cardId: lastDiscard.id, pairedCards: [handCard.id] });
+          const pairKey = `${lastDiscard.id}:${handCard.id}`;
+          if (!seenPairs.has(pairKey)) {
+            seenPairs.add(pairKey);
+            options.push({ cardId: lastDiscard.id, pairedCards: [handCard.id] });
+          }
         }
       }
 

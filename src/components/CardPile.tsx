@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Card } from '../models/card';
+import { Card, Suit, Rank } from '../models/card';
 import { CardWidget } from './CardWidget';
 import { useTranslation } from '../i18n';
+
+const PLACEHOLDER_CARD: Card = { rank: Rank.Nhi, suit: Suit.Van, id: '__placeholder__' };
 
 interface CardPileProps {
   discardPile: Card[];
@@ -24,7 +26,7 @@ export function CardPile({ discardPile, drawPileCount, onDrawPress }: CardPilePr
       >
         {drawPileCount > 0 ? (
           <>
-            <CardWidget card={{ rank: 2, suit: 'van' as any, id: 'back' }} faceDown small />
+            <CardWidget card={PLACEHOLDER_CARD} faceDown small />
             <Text style={styles.countText}>{drawPileCount}</Text>
           </>
         ) : (

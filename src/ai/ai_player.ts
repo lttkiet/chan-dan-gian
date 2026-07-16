@@ -74,7 +74,8 @@ function discardDangerScore(
   card: Card,
   hand: Hand,
   state: GameState,
-  analysis: ReturnType<typeof analyzeHand>
+  analysis: ReturnType<typeof analyzeHand>,
+  playerId: number
 ): number {
   let danger = 0;
 
@@ -99,7 +100,7 @@ function discardDangerScore(
   danger += sameSuit * 5;
 
   // Safe cards are less dangerous to discard
-  if (isSafeDiscard(card, state, -1)) {
+  if (isSafeDiscard(card, state, playerId)) {
     danger -= 20;
   }
 
@@ -144,7 +145,7 @@ function evaluateDiscardScore(
   score -= cardValue(card, hand, state);
 
   // Danger of discarding (lower = safer to discard)
-  score += discardDangerScore(card, hand, state, analysis);
+  score += discardDangerScore(card, hand, state, analysis, playerId);
 
   // Bonus for safe discards
   if (isSafeDiscard(card, state, playerId)) {

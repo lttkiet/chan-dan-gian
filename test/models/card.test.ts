@@ -1,4 +1,4 @@
-import { Card, Suit, Rank, createCard, isRedCard, isChiChi, cardName, getAllCardTypes } from '../../src/models/card';
+import { Card, Suit, Rank, createCard, isRedCard, isRedScoreCard, isChiChi, cardName, getAllCardTypes } from '../../src/models/card';
 
 describe('Card Model', () => {
   test('creates a card with correct properties', () => {
@@ -15,16 +15,34 @@ describe('Card Model', () => {
     expect(isChiChi(tam)).toBe(false);
   });
 
-  test('detects red cards', () => {
-    const chi = createCard(Suit.Van, Rank.Chi);
-    const cuu = createCard(Suit.Van, Rank.Cuu);
-    const bat = createCard(Suit.Sach, Rank.Bat);
-    const tam = createCard(Suit.Van, Rank.Tam);
+  test('detects exactly 4 red cards: Chi Chi, Cửu Vạn, Bát Sách, Thất Văn', () => {
+    // Red cards
+    expect(isRedCard(createCard(Suit.Van, Rank.Chi))).toBe(true);    // Chi Chi
+    expect(isRedCard(createCard(Suit.Van, Rank.Cuu))).toBe(true);   // Cửu Vạn
+    expect(isRedCard(createCard(Suit.Sach, Rank.Bat))).toBe(true);  // Bát Sách
+    expect(isRedCard(createCard(Suit.Van2, Rank.That))).toBe(true); // Thất Văn
 
-    expect(isRedCard(chi)).toBe(true);
-    expect(isRedCard(cuu)).toBe(true);
-    expect(isRedCard(bat)).toBe(true);
-    expect(isRedCard(tam)).toBe(false);
+    // NOT red: same rank different suit
+    expect(isRedCard(createCard(Suit.Van2, Rank.Cuu))).toBe(false); // Cửu Văn
+    expect(isRedCard(createCard(Suit.Sach, Rank.Cuu))).toBe(false); // Cửu Sách
+    expect(isRedCard(createCard(Suit.Van, Rank.Bat))).toBe(false);  // Bát Vạn
+    expect(isRedCard(createCard(Suit.Van2, Rank.Bat))).toBe(false); // Bát Văn
+    expect(isRedCard(createCard(Suit.Van, Rank.That))).toBe(false); // Thất Vạn
+    expect(isRedCard(createCard(Suit.Sach, Rank.That))).toBe(false);// Thất Sách
+
+    // NOT red: other ranks
+    expect(isRedCard(createCard(Suit.Van, Rank.Tam))).toBe(false);
+    expect(isRedCard(createCard(Suit.Van, Rank.Nhi))).toBe(false);
+  });
+
+  test('isRedScoreCard is identical to isRedCard', () => {
+    const allCards = getAllCardTypes();
+    for (const card of allCards) {
+      expect(isRedScoreCard(card)).toBe(isRedCard(card));
+    }
+    // Exactly 4 red score cards (1 copy each type, 4 total in deck with copies)
+    const redCount = allCards.filter(c => isRedScoreCard(c)).length;
+    expect(redCount).toBe(4);
   });
 
   test('returns correct card names', () => {
