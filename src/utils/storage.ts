@@ -45,6 +45,12 @@ export async function loadGame(): Promise<SavedGame | null> {
       return null;
     }
 
+    // Normalize consecutivePasses: older saves lack this field, and passTurn()
+    // increments it unconditionally, which would produce NaN
+    if (data.gameState.turn && typeof data.gameState.turn.consecutivePasses !== 'number') {
+      data.gameState.turn.consecutivePasses = 0;
+    }
+
     return { ...data, version } as SavedGame;
   } catch {
     return null;
