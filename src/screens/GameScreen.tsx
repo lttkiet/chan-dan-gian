@@ -225,20 +225,6 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
     try {
       const newState = engine.chiuCard(gameState, 0);
       setGameState(newState);
-
-      const winCheck = engine.checkForWin(newState, 0);
-      if (winCheck.won) {
-        setMessage(t.msgYouWin);
-        clearGame();
-        setGameResult({
-          winner: t.appName,
-          isHumanWin: true,
-          winType: winCheck.winType,
-          cuocResult: winCheck.result,
-        });
-        return;
-      }
-
       setMessage(t.msgChiu);
       setPendingDiscard(true);
     } catch (e: any) {
@@ -260,20 +246,6 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
       setGameState(newState);
       setSelectedCard(null);
       setPendingDiscard(false);
-
-      const winCheck = engine.checkForWin(newState, 0);
-      if (winCheck.won) {
-        setMessage(t.msgYouWin);
-        clearGame();
-        setGameResult({
-          winner: t.appName,
-          isHumanWin: true,
-          winType: winCheck.winType,
-          cuocResult: winCheck.result,
-        });
-        return;
-      }
-
       setMessage(t.msgDiscarded);
     } catch (e: any) {
       setMessage(getErrorMessage(e));

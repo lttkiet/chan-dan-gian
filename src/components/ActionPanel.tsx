@@ -19,7 +19,7 @@ interface ActionPanelProps {
 export function ActionPanel({ actions, pendingDiscard, selectedCard, t, onDraw, onEat, onChiu, onDiscard, onPass, onDeclareU }: ActionPanelProps) {
   return (
     <View style={styles.actions}>
-      {!pendingDiscard && actions.includes(PlayerAction.DeclareU) && (
+      {actions.includes(PlayerAction.DeclareU) && (
         <TouchableOpacity style={[styles.actionButton, styles.declareUButton]} onPress={onDeclareU}>
           <Text style={styles.actionText}>{t.btnDeclareU}</Text>
         </TouchableOpacity>
