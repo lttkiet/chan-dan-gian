@@ -5,6 +5,7 @@ import { drawPileCount } from '../../src/models/deck';
 import { GameConfig, Region, ChiChiMode, DEFAULT_CONFIG } from '../../src/models/game_config';
 import { Rank, Suit, Card } from '../../src/models/card';
 import { analyzeHand } from '../../src/engine/meld_analyzer';
+import { CuocType } from '../../src/engine/scoring';
 
 describe('Game Engine', () => {
   test('creates a game engine', () => {
@@ -290,7 +291,10 @@ describe('Game Engine', () => {
     const win = engine.checkForWin(state, 0);
     expect(win.won).toBe(true);
     expect(win.result).toBeDefined();
-    // A clean 6-Chăn Ù Rộng has exactly 6 Chăn — the phantom-Chăn bug reported 7+
-    expect(win.result!.cuocs.length).toBeGreaterThan(0);
+    // Xuong + Chì (it's the player's turn after drawing): all cuocs ≤ 3 pts → special case: points=0, dich=sum+2
+    expect(win.result!.cuocs).toContain(CuocType.Xuong);
+    expect(win.result!.cuocs).toContain(CuocType.Chi);
+    expect(win.result!.totalPoints).toBe(0);
+    expect(win.result!.totalDich).toBe(4); // Xuong.dich(1) + Chi.dich(1) + 2
   });
 });

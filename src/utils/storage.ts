@@ -9,7 +9,7 @@ export interface SavedGame {
   gameState: GameState;
   config: GameConfig;
   savedAt: number;
-  version: number;
+  version?: number;
 }
 
 export async function saveGame(state: GameState, config: GameConfig): Promise<void> {
@@ -37,12 +37,15 @@ export async function loadGame(): Promise<SavedGame | null> {
     if (!data.gameState.turn || data.gameState.turn.phase !== 'playing') return null;
     if (!Array.isArray(data.gameState.players)) return null;
 
+    // Normalize version: older saves may not have it; treat missing as 0
+    const version = typeof data.version === 'number' ? data.version : 0;
+
     // Version check: if schema is newer than what we can read, discard
-    if (data.version && data.version > SCHEMA_VERSION) {
+    if (version > SCHEMA_VERSION) {
       return null;
     }
 
-    return data as SavedGame;
+    return { ...data, version } as SavedGame;
   } catch {
     return null;
   }

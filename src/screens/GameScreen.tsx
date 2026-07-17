@@ -13,7 +13,6 @@ import { handSize } from '../models/hand';
 import { drawPileCount } from '../models/deck';
 import { analyzeHand } from '../engine/meld_analyzer';
 import { GameConfig, DEFAULT_CONFIG } from '../models/game_config';
-import { CuocResult } from '../engine/scoring';
 import { useTranslation } from '../i18n';
 import { saveGame, clearGame, SavedGame } from '../utils/storage';
 import { getAiDelay } from '../utils/animation';
@@ -60,6 +59,19 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
   useEffect(() => {
     gameStateRef.current = gameState;
   }, [gameState]);
+
+  useEffect(() => {
+    if (!gameState || !gameStarted || gameResult) return;
+    if (gameState.turn.phase === GamePhase.Finished) {
+      clearGame();
+      setGameResult({
+        winner: '',
+        isHumanWin: false,
+        isDraw: true,
+        winType: '',
+      });
+    }
+  }, [gameState?.turn.phase, gameStarted, gameResult]);
 
   const startGame = useCallback(() => {
     clearGame();

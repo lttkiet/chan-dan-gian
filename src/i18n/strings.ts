@@ -151,6 +151,10 @@ export interface AppStrings {
   continueGame: string;
   savedAt: string;
   gameRestored: string;
+
+  // Draw/stall
+  drawTitle: string;
+  drawSubtitle: string;
 }
 
 const vi: AppStrings = {
@@ -285,6 +289,9 @@ const vi: AppStrings = {
   continueGame: 'Tiếp tục chơi',
   savedAt: 'Đã lưu: ',
   gameRestored: 'Trò chơi đã được khôi phục',
+
+  drawTitle: 'Hòa!',
+  drawSubtitle: 'Không còn bài để bốc',
 };
 
 const en: AppStrings = {
@@ -419,6 +426,9 @@ const en: AppStrings = {
   continueGame: 'Continue',
   savedAt: 'Saved: ',
   gameRestored: 'Game restored',
+
+  drawTitle: 'Draw!',
+  drawSubtitle: 'No cards left to draw',
 };
 
 export const STRINGS: Record<Language, AppStrings> = { vi, en };

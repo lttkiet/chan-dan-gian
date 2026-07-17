@@ -118,6 +118,7 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerName
           canEat: false,
           canChiu: canChiuVal,
           lastAction: PlayerAction.Draw,
+          consecutivePasses: 0,
         },
       };
       return currentState;
@@ -157,6 +158,7 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerName
           hasDrawnThisTurn: true, // After eating, must discard
           canEat: false,
           canChiu: false,
+          consecutivePasses: 0,
         },
       };
       return currentState;
@@ -212,6 +214,7 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerName
           drawnCard: null,
           hasDrawnThisTurn: isFromDiscard ? true : state.turn.hasDrawnThisTurn,
           canChiu: false,
+          consecutivePasses: 0,
         },
       };
       return currentState;
@@ -253,6 +256,7 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerName
           hasDrawnThisTurn: false,
           canEat: false,
           canChiu: false,
+          consecutivePasses: 0,
         },
       };
       return currentState;

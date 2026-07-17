@@ -6,6 +6,7 @@ import { AppStrings } from '../i18n/strings';
 export interface GameResult {
   winner: string;
   isHumanWin: boolean;
+  isDraw?: boolean;
   winType: string;
   cuocResult?: CuocResult;
 }
@@ -19,15 +20,16 @@ interface WinModalProps {
 }
 
 export function WinModal({ result, visible, t, onPlayAgain, onBackToHome }: WinModalProps) {
+  const isDraw = result?.isDraw ?? false;
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={[styles.modalTitle, result?.isHumanWin && styles.winText]}>
-            {result?.isHumanWin ? t.winTitle : t.loseTitle}
+          <Text style={[styles.modalTitle, result?.isHumanWin && styles.winText, isDraw && styles.drawText]}>
+            {isDraw ? t.drawTitle : result?.isHumanWin ? t.winTitle : t.loseTitle}
           </Text>
           <Text style={styles.modalSubtitle}>
-            {result?.winner} {t.winSubtitle}{result?.winType}
+            {isDraw ? t.drawSubtitle : `${result?.winner} ${t.winSubtitle}${result?.winType}`}
           </Text>
           {result?.cuocResult && (
             <View style={styles.cuocInfo}>
@@ -76,6 +78,9 @@ const styles = StyleSheet.create({
   },
   winText: {
     color: '#f1c40f',
+  },
+  drawText: {
+    color: '#3498db',
   },
   modalSubtitle: {
     fontSize: 16,
