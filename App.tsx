@@ -7,6 +7,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import { GameConfig, DEFAULT_CONFIG } from './src/models/game_config';
 import { I18nProvider } from './src/i18n';
 import { loadGame, SavedGame } from './src/utils/storage';
+import { ErrorBoundary } from './src/components/ErrorBoundary';
 
 type Screen = 'home' | 'game' | 'settings';
 
@@ -43,51 +44,53 @@ export default function App() {
   };
 
   return (
-    <I18nProvider>
-      {(() => {
-        switch (screen) {
-          case 'settings':
-            return (
-              <>
-                <SettingsScreen
-                  config={config}
-                  onSave={(newConfig) => {
-                    setConfig(newConfig);
-                    setScreen('home');
-                  }}
-                  onBack={() => setScreen('home')}
-                />
-                <StatusBar style="light" />
-              </>
-            );
+    <ErrorBoundary onReset={() => setScreen('home')}>
+      <I18nProvider>
+        {(() => {
+          switch (screen) {
+            case 'settings':
+              return (
+                <>
+                  <SettingsScreen
+                    config={config}
+                    onSave={(newConfig) => {
+                      setConfig(newConfig);
+                      setScreen('home');
+                    }}
+                    onBack={() => setScreen('home')}
+                  />
+                  <StatusBar style="light" />
+                </>
+              );
 
-          case 'game':
-            return (
-              <>
-                <GameScreen
-                  config={config}
-                  savedGame={savedGame}
-                  onOpenSettings={() => setScreen('settings')}
-                  onBackToHome={handleBackToHome}
-                />
-                <StatusBar style="light" />
-              </>
-            );
+            case 'game':
+              return (
+                <>
+                  <GameScreen
+                    config={config}
+                    savedGame={savedGame}
+                    onOpenSettings={() => setScreen('settings')}
+                    onBackToHome={handleBackToHome}
+                  />
+                  <StatusBar style="light" />
+                </>
+              );
 
-          default:
-            return (
-              <>
-                <HomeScreen
-                  onPlay={handlePlay}
-                  onContinue={handleContinue}
-                  hasSavedGame={hasSaved}
-                  onSettings={() => setScreen('settings')}
-                />
-                <StatusBar style="light" />
-              </>
-            );
-        }
-      })()}
-    </I18nProvider>
+            default:
+              return (
+                <>
+                  <HomeScreen
+                    onPlay={handlePlay}
+                    onContinue={handleContinue}
+                    hasSavedGame={hasSaved}
+                    onSettings={() => setScreen('settings')}
+                  />
+                  <StatusBar style="light" />
+                </>
+              );
+          }
+        })()}
+      </I18nProvider>
+    </ErrorBoundary>
   );
 }

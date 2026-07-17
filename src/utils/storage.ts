@@ -3,11 +3,13 @@ import { GameState } from '../models/game_state';
 import { GameConfig } from '../models/game_config';
 
 const STORAGE_KEY = 'chan_saved_game';
+const SCHEMA_VERSION = 1;
 
 export interface SavedGame {
   gameState: GameState;
   config: GameConfig;
   savedAt: number;
+  version: number;
 }
 
 export async function saveGame(state: GameState, config: GameConfig): Promise<void> {
@@ -16,6 +18,7 @@ export async function saveGame(state: GameState, config: GameConfig): Promise<vo
       gameState: state,
       config,
       savedAt: Date.now(),
+      version: SCHEMA_VERSION,
     };
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
@@ -33,6 +36,12 @@ export async function loadGame(): Promise<SavedGame | null> {
     if (!data.config || typeof data.config !== 'object') return null;
     if (!data.gameState.turn || data.gameState.turn.phase !== 'playing') return null;
     if (!Array.isArray(data.gameState.players)) return null;
+
+    // Version check: if schema is newer than what we can read, discard
+    if (data.version && data.version > SCHEMA_VERSION) {
+      return null;
+    }
+
     return data as SavedGame;
   } catch {
     return null;
