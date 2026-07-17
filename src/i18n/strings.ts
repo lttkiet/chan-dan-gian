@@ -36,6 +36,7 @@ export interface AppStrings {
   btnChiu: string;
   btnDiscard: string;
   btnPass: string;
+  btnDeclareU: string;
 
   // Hand label
   handLabel: string;
@@ -187,6 +188,7 @@ const vi: AppStrings = {
   btnChiu: 'Chíu',
   btnDiscard: 'Đánh',
   btnPass: 'Bỏ',
+  btnDeclareU: 'Ù',
 
   handLabel: 'Bài của bạn (',
   discardHint: 'Chọn lá bài để đánh',
@@ -324,6 +326,7 @@ const en: AppStrings = {
   btnChiu: 'Chiu',
   btnDiscard: 'Discard',
   btnPass: 'Pass',
+  btnDeclareU: 'Ù',
 
   handLabel: 'Your hand (',
   discardHint: 'Select a card to discard',

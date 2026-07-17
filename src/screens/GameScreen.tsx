@@ -122,7 +122,11 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
     switch (decision.action) {
       case PlayerAction.Draw:
         newState = engine.drawFromNoc(newState);
+        if (tryDeclareWin(newState, playerId)) return;
         const discardDecision = ai.decide(newState, playerId, engine);
+        if (discardDecision.action === PlayerAction.DeclareU) {
+          if (tryDeclareWin(newState, playerId)) return;
+        }
         if (discardDecision.action === PlayerAction.Discard && discardDecision.cardId) {
           newState = engine.discardCard(newState, playerId, discardDecision.cardId);
         } else {
@@ -132,6 +136,9 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
       case PlayerAction.Eat:
         newState = engine.eatCard(newState, playerId);
         const postEatDecision = ai.decide(newState, playerId, engine);
+        if (postEatDecision.action === PlayerAction.DeclareU) {
+          if (tryDeclareWin(newState, playerId)) return;
+        }
         if (postEatDecision.action === PlayerAction.Discard && postEatDecision.cardId) {
           newState = engine.discardCard(newState, playerId, postEatDecision.cardId);
         }
@@ -139,18 +146,28 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
       case PlayerAction.Chiu:
         newState = engine.chiuCard(newState, playerId);
         const postChiuDecision = ai.decide(newState, playerId, engine);
+        if (postChiuDecision.action === PlayerAction.DeclareU) {
+          if (tryDeclareWin(newState, playerId)) return;
+        }
         if (postChiuDecision.action === PlayerAction.Discard && postChiuDecision.cardId) {
           newState = engine.discardCard(newState, playerId, postChiuDecision.cardId);
         }
+        break;
+      case PlayerAction.DeclareU:
+        if (tryDeclareWin(newState, playerId)) return;
         break;
       default:
         newState = engine.passTurn(newState);
     }
 
-    const winCheck = engine.checkForWin(newState, playerId);
+    setGameState(newState);
+  };
+
+  const tryDeclareWin = (state: GameState, playerId: number): boolean => {
+    const winCheck = engine.checkForWin(state, playerId);
     if (winCheck.won) {
-      const winnerName = newState.players[playerId].name;
-      const isHumanWin = newState.players[playerId].isHuman;
+      const winnerName = state.players[playerId].name;
+      const isHumanWin = state.players[playerId].isHuman;
       setMessage(`${winnerName} ${t.winSubtitle}${winCheck.winType}`);
       clearGame();
       setGameResult({
@@ -159,9 +176,9 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
         winType: winCheck.winType,
         cuocResult: winCheck.result,
       });
+      return true;
     }
-
-    setGameState(newState);
+    return false;
   };
 
   const getErrorMessage = (error: any): string => {
@@ -272,6 +289,21 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
     setMessage(t.msgPassed);
   };
 
+  const handleDeclareU = () => {
+    if (!gameState) return;
+    const winCheck = engine.checkForWin(gameState, 0);
+    if (winCheck.won) {
+      setMessage(t.msgYouWin);
+      clearGame();
+      setGameResult({
+        winner: t.appName,
+        isHumanWin: true,
+        winType: winCheck.winType,
+        cuocResult: winCheck.result,
+      });
+    }
+  };
+
   if (!gameState || !gameStarted) {
     return (
       <View style={styles.preGame}>
@@ -356,6 +388,7 @@ export default function GameScreen({ config = DEFAULT_CONFIG, savedGame, onOpenS
           onChiu={handleChiu}
           onDiscard={handleDiscard}
           onPass={handlePass}
+          onDeclareU={handleDeclareU}
         />
       )}
 

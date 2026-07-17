@@ -13,11 +13,17 @@ interface ActionPanelProps {
   onChiu: () => void;
   onDiscard: () => void;
   onPass: () => void;
+  onDeclareU: () => void;
 }
 
-export function ActionPanel({ actions, pendingDiscard, selectedCard, t, onDraw, onEat, onChiu, onDiscard, onPass }: ActionPanelProps) {
+export function ActionPanel({ actions, pendingDiscard, selectedCard, t, onDraw, onEat, onChiu, onDiscard, onPass, onDeclareU }: ActionPanelProps) {
   return (
     <View style={styles.actions}>
+      {!pendingDiscard && actions.includes(PlayerAction.DeclareU) && (
+        <TouchableOpacity style={[styles.actionButton, styles.declareUButton]} onPress={onDeclareU}>
+          <Text style={styles.actionText}>{t.btnDeclareU}</Text>
+        </TouchableOpacity>
+      )}
       {!pendingDiscard && actions.includes(PlayerAction.Draw) && (
         <TouchableOpacity style={styles.actionButton} onPress={onDraw}>
           <Text style={styles.actionText}>{t.btnDraw}</Text>
@@ -63,6 +69,9 @@ const styles = StyleSheet.create({
   },
   chiuButton: {
     backgroundColor: '#8e44ad',
+  },
+  declareUButton: {
+    backgroundColor: '#e74c3c',
   },
   discardButton: {
     backgroundColor: '#e74c3c',
