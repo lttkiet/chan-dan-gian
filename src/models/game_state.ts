@@ -36,6 +36,7 @@ export interface TurnState {
   readonly canEat: boolean;
   readonly canChiu: boolean;
   readonly hasDrawnThisTurn: boolean;
+  readonly consecutivePasses: number; // for detecting a stalled/drawn round (hòa)
 }
 
 export interface GameState {
@@ -71,6 +72,7 @@ export function createGameState(
       canEat: false,
       canChiu: false,
       hasDrawnThisTurn: false,
+      consecutivePasses: 0,
     },
     roundNumber: 1,
     consecutiveWins: playerNames.map(() => 0),

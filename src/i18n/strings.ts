@@ -36,6 +36,7 @@ export interface AppStrings {
   btnChiu: string;
   btnDiscard: string;
   btnPass: string;
+  btnDeclareU: string;
 
   // Hand label
   handLabel: string;
@@ -151,6 +152,10 @@ export interface AppStrings {
   continueGame: string;
   savedAt: string;
   gameRestored: string;
+
+  // Draw/stall
+  drawTitle: string;
+  drawSubtitle: string;
 }
 
 const vi: AppStrings = {
@@ -183,6 +188,7 @@ const vi: AppStrings = {
   btnChiu: 'Chíu',
   btnDiscard: 'Đánh',
   btnPass: 'Bỏ',
+  btnDeclareU: 'Ù',
 
   handLabel: 'Bài của bạn (',
   discardHint: 'Chọn lá bài để đánh',
@@ -285,6 +291,9 @@ const vi: AppStrings = {
   continueGame: 'Tiếp tục chơi',
   savedAt: 'Đã lưu: ',
   gameRestored: 'Trò chơi đã được khôi phục',
+
+  drawTitle: 'Hòa!',
+  drawSubtitle: 'Không còn bài để bốc',
 };
 
 const en: AppStrings = {
@@ -317,6 +326,7 @@ const en: AppStrings = {
   btnChiu: 'Chiu',
   btnDiscard: 'Discard',
   btnPass: 'Pass',
+  btnDeclareU: 'Ù',
 
   handLabel: 'Your hand (',
   discardHint: 'Select a card to discard',
@@ -419,6 +429,9 @@ const en: AppStrings = {
   continueGame: 'Continue',
   savedAt: 'Saved: ',
   gameRestored: 'Game restored',
+
+  drawTitle: 'Draw!',
+  drawSubtitle: 'No cards left to draw',
 };
 
 export const STRINGS: Record<Language, AppStrings> = { vi, en };

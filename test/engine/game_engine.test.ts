@@ -5,6 +5,7 @@ import { drawPileCount } from '../../src/models/deck';
 import { GameConfig, Region, ChiChiMode, DEFAULT_CONFIG } from '../../src/models/game_config';
 import { Rank, Suit, Card } from '../../src/models/card';
 import { analyzeHand } from '../../src/engine/meld_analyzer';
+import { CuocType } from '../../src/engine/scoring';
 
 describe('Game Engine', () => {
   test('creates a game engine', () => {
@@ -240,5 +241,60 @@ describe('Game Engine', () => {
     let state = engine.setupGame(42);
     state = engine.dealCards();
     expect(state.turn.phase).toBe(GamePhase.Playing);
+  });
+
+  test('detects Ù through the real draw path without double-counting drawn card', () => {
+    // Regression: drawFromNoc puts the drawn card into hand, and checkForWin
+    // must not let checkWin/calculateCuoc append it a second time (which would
+    // create a phantom Chăn and both break win detection and inflate the score).
+    // 6 Chăn + 1 orphan (Tam Vạn); the drawn Tam Văn completes an Ù Rộng.
+    const handCards: Card[] = [
+      [Suit.Van, Rank.Nhi], [Suit.Van, Rank.Nhi],
+      [Suit.Van, Rank.Tu], [Suit.Van, Rank.Tu],
+      [Suit.Van, Rank.Luc], [Suit.Van, Rank.Luc],
+      [Suit.Van, Rank.Bat], [Suit.Van, Rank.Bat],
+      [Suit.Van, Rank.Cuu], [Suit.Van, Rank.Cuu],
+      [Suit.Van, Rank.That], [Suit.Van, Rank.That],
+      [Suit.Van, Rank.Tam], // orphan
+      [Suit.Van2, Rank.Nhi], [Suit.Van2, Rank.Nhi],
+      [Suit.Van2, Rank.Tu], [Suit.Van2, Rank.Tu],
+      [Suit.Van2, Rank.Luc], [Suit.Van2, Rank.Luc],
+    ].map(([suit, rank], i) => ({ suit, rank, id: `h${i}` } as Card));
+    const winningDraw: Card = { suit: Suit.Van2, rank: Rank.Tam, id: 'draw' };
+
+    const engine = createGameEngine();
+    const base = engine.setupGame(42);
+    const players = base.players.map((p, i) =>
+      i === 0 ? { ...p, hand: { cards: handCards } } : p
+    );
+    let state = engine.loadState({
+      ...base,
+      players,
+      deck: { ...base.deck, drawPile: [winningDraw], discardPile: [] },
+      turn: {
+        ...base.turn,
+        phase: GamePhase.Playing,
+        currentPlayerId: 0,
+        hasDrawnThisTurn: false,
+        drawnCard: null,
+      },
+    });
+
+    // Ù is not offered before drawing the completing card
+    expect(engine.getValidActions(state, 0)).not.toContain(PlayerAction.DeclareU);
+
+    state = engine.drawFromNoc(state);
+
+    // Now the completing card is in hand — the engine must recognise the win
+    expect(engine.getValidActions(state, 0)).toContain(PlayerAction.DeclareU);
+
+    const win = engine.checkForWin(state, 0);
+    expect(win.won).toBe(true);
+    expect(win.result).toBeDefined();
+    // Xuong + Chì (it's the player's turn after drawing): all cuocs ≤ 3 pts → special case: points=0, dich=sum+2
+    expect(win.result!.cuocs).toContain(CuocType.Xuong);
+    expect(win.result!.cuocs).toContain(CuocType.Chi);
+    expect(win.result!.totalPoints).toBe(0);
+    expect(win.result!.totalDich).toBe(4); // Xuong.dich(1) + Chi.dich(1) + 2
   });
 });

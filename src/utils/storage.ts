@@ -3,11 +3,13 @@ import { GameState } from '../models/game_state';
 import { GameConfig } from '../models/game_config';
 
 const STORAGE_KEY = 'chan_saved_game';
+const SCHEMA_VERSION = 1;
 
 export interface SavedGame {
   gameState: GameState;
   config: GameConfig;
   savedAt: number;
+  version?: number;
 }
 
 export async function saveGame(state: GameState, config: GameConfig): Promise<void> {
@@ -16,6 +18,7 @@ export async function saveGame(state: GameState, config: GameConfig): Promise<vo
       gameState: state,
       config,
       savedAt: Date.now(),
+      version: SCHEMA_VERSION,
     };
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
@@ -33,7 +36,22 @@ export async function loadGame(): Promise<SavedGame | null> {
     if (!data.config || typeof data.config !== 'object') return null;
     if (!data.gameState.turn || data.gameState.turn.phase !== 'playing') return null;
     if (!Array.isArray(data.gameState.players)) return null;
-    return data as SavedGame;
+
+    // Normalize version: older saves may not have it; treat missing as 0
+    const version = typeof data.version === 'number' ? data.version : 0;
+
+    // Version check: if schema is newer than what we can read, discard
+    if (version > SCHEMA_VERSION) {
+      return null;
+    }
+
+    // Normalize consecutivePasses: older saves lack this field, and passTurn()
+    // increments it unconditionally, which would produce NaN
+    if (data.gameState.turn && typeof data.gameState.turn.consecutivePasses !== 'number') {
+      data.gameState.turn.consecutivePasses = 0;
+    }
+
+    return { ...data, version } as SavedGame;
   } catch {
     return null;
   }

@@ -118,6 +118,7 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerName
           canEat: false,
           canChiu: canChiuVal,
           lastAction: PlayerAction.Draw,
+          consecutivePasses: 0,
         },
       };
       return currentState;
@@ -157,6 +158,7 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerName
           hasDrawnThisTurn: true, // After eating, must discard
           canEat: false,
           canChiu: false,
+          consecutivePasses: 0,
         },
       };
       return currentState;
@@ -212,6 +214,7 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerName
           drawnCard: null,
           hasDrawnThisTurn: isFromDiscard ? true : state.turn.hasDrawnThisTurn,
           canChiu: false,
+          consecutivePasses: 0,
         },
       };
       return currentState;
@@ -253,6 +256,7 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerName
           hasDrawnThisTurn: false,
           canEat: false,
           canChiu: false,
+          consecutivePasses: 0,
         },
       };
       return currentState;
@@ -260,16 +264,25 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerName
 
     passTurn(state: GameState): GameState {
       const nextPlayerId = (state.turn.currentPlayerId + 1) % TOTAL_PLAYERS;
+      const consecutivePasses = state.turn.consecutivePasses + 1;
+
+      // Round is a draw (hòa) if every player passes in a row with no cards
+      // left to draw — otherwise the game would loop passing forever.
+      const stalled =
+        consecutivePasses >= TOTAL_PLAYERS && drawPileCount(state.deck) === 0;
+
       currentState = {
         ...state,
         turn: {
           ...state.turn,
           currentPlayerId: nextPlayerId,
+          phase: stalled ? GamePhase.Finished : state.turn.phase,
           lastAction: PlayerAction.Pass,
           drawnCard: null,
           hasDrawnThisTurn: false,
           canEat: false,
           canChiu: false,
+          consecutivePasses,
         },
       };
       return currentState;
@@ -279,13 +292,17 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerName
       const player = state.players[playerId];
       const drawnCard = state.turn.drawnCard;
 
-      // Check if hand + drawn card is a winning hand
+      // Check if hand + drawn card is a winning hand.
+      // player.hand already contains the drawn card, but checkWin/calculateCuoc
+      // expect the pre-draw hand plus a separate drawn card — otherwise the
+      // drawn card is counted twice (a phantom Chăn) and the win/score is wrong.
       if (drawnCard) {
         const isDealer = playerId === 0;
-        const winResult = checkWin(player.hand, drawnCard, isDealer, false);
+        const handBeforeDraw = removeCard(player.hand, drawnCard.id);
+        const winResult = checkWin(handBeforeDraw, drawnCard, isDealer, false);
         if (winResult.valid) {
           const cuocResult = calculateCuoc(
-            player.hand,
+            handBeforeDraw,
             drawnCard,
             winResult.type,
             {
@@ -329,10 +346,12 @@ export function createGameEngine(config: GameConfig = DEFAULT_CONFIG, playerName
         actions.push(PlayerAction.Discard);
         if (state.turn.canChiu) actions.push(PlayerAction.Chiu);
 
-        // Check for Ù
+        // Check for Ù (hand already contains the drawn card, so strip it
+        // before checkWin re-appends it — see checkForWin for the rationale)
         if (state.turn.drawnCard) {
+          const handBeforeDraw = removeCard(player.hand, state.turn.drawnCard.id);
           const winCheck = checkWin(
-            player.hand,
+            handBeforeDraw,
             state.turn.drawnCard,
             playerId === 0,
             false
