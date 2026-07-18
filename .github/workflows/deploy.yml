@@ -34,6 +34,9 @@ jobs:
       - name: Publish Browser
         run: dotnet publish src/ChanDanGian/ChanDanGian.Browser/ChanDanGian.Browser.csproj -c Release -o release-browser
 
+      - name: Prepare for GitHub Pages
+        run: echo "" > release-browser/wwwroot/.nojekyll
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
