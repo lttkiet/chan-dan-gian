@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:ChanDanGian.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="ChanDanGian.Views.HomeView"
+             x:DataType="vm:HomeViewModel">
+  <UserControl.Styles>
+    <Style Selector="Button.home">
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="FontSize" Value="22" />
+      <Setter Property="Padding" Value="60,14" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Background" Value="#c9a84c" />
+      <Setter Property="Foreground" Value="#1a1a1a" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.home:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#d4b85c" />
+    </Style>
+    <Style Selector="Button.settings">
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Padding" Value="36,10" />
+      <Setter Property="Background" Value="#00000040" />
+      <Setter Property="Foreground" Value="#c8e6c9" />
+      <Setter Property="BorderBrush" Value="#4a7a4a" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Button.settings:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#00000060" />
+    </Style>
+  </UserControl.Styles>
+
+  <Panel>
+    <!-- Green felt background -->
+    <Border Background="#1a5c2e" />
+
+    <!-- Decorative border -->
+    <Border BorderBrush="#c9a84c" BorderThickness="3" CornerRadius="0"
+            Margin="16,16,16,16">
+      <Border BorderBrush="#8b7355" BorderThickness="1" CornerRadius="0"
+              Margin="2">
+        <Panel>
+          <!-- Inner darker area -->
+          <Border Background="#164a24" />
+
+          <Grid RowDefinitions="*,Auto,*" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!-- Title area -->
+            <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="4">
+              <!-- Card suit decorations -->
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12" Margin="0,0,0,8">
+                <TextBlock Text="&#x2666;" FontSize="20" Foreground="#c9a84c" Opacity="0.6" />
+                <TextBlock Text="&#x2663;" FontSize="20" Foreground="#c9a84c" Opacity="0.6" />
+                <TextBlock Text="&#x2660;" FontSize="20" Foreground="#c9a84c" Opacity="0.6" />
+                <TextBlock Text="&#x2665;" FontSize="20" Foreground="#c9a84c" Opacity="0.6" />
+              </StackPanel>
+
+              <TextBlock Text="Ch&#x1EAF;n" FontSize="52" FontWeight="Bold"
+                         HorizontalAlignment="Center" Foreground="#ffd54f" />
+              <TextBlock Text="D&#x00E2;n Gian" FontSize="22" HorizontalAlignment="Center"
+                         Foreground="#c8e6c9" />
+
+              <!-- Decorative line -->
+              <Border Width="200" Height="2" CornerRadius="1" HorizontalAlignment="Center"
+                      Margin="0,8,0,0">
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                    <GradientStop Color="Transparent" Offset="0" />
+                    <GradientStop Color="#c9a84c" Offset="0.5" />
+                    <GradientStop Color="Transparent" Offset="1" />
+                  </LinearGradientBrush>
+                </Border.Background>
+              </Border>
+            </StackPanel>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="1" Spacing="16" HorizontalAlignment="Center" Margin="0,32,0,0">
+              <Button Classes="home" Content="Ch&#x01A1;i" Command="{Binding PlayCommand}" />
+              <Button Classes="settings" Content="&#x2699;&#xFE0F; L&#x01B0;&#x0103;t ch&#x1EE3;i &amp; C&#x00E0;i &#x0111;&#x1EB7;t"
+                      Command="{Binding OpenSettingsCommand}" />
+            </StackPanel>
+
+            <!-- Bottom spacer -->
+            <StackPanel Grid.Row="2" />
+          </Grid>
+        </Panel>
+      </Border>
+    </Border>
+  </Panel>
+</UserControl>

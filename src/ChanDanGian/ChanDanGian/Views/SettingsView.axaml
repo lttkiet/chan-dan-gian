@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:ChanDanGian.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="500"
+             x:Class="ChanDanGian.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+    <StackPanel Spacing="16" Margin="24">
+      <TextBlock Text="Cài đặt" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8" />
+
+      <!-- Ga toggle -->
+      <Border Background="#2a2a2a" CornerRadius="8" Padding="16">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="Gà (cược thêm)" FontSize="16" VerticalAlignment="Center" />
+          <ToggleSwitch Grid.Column="1" IsChecked="{Binding EnableGa}" />
+        </Grid>
+      </Border>
+
+      <!-- Chi Chi toggle -->
+      <Border Background="#2a2a2a" CornerRadius="8" Padding="16">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="Luật Chi Chi" FontSize="16" VerticalAlignment="Center" />
+          <ToggleSwitch Grid.Column="1" IsChecked="{Binding EnableChiChi}" />
+        </Grid>
+      </Border>
+
+      <!-- U 4-11 toggle -->
+      <Border Background="#2a2a2a" CornerRadius="8" Padding="16">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="Ù 4-11" FontSize="16" VerticalAlignment="Center" />
+          <ToggleSwitch Grid.Column="1" IsChecked="{Binding UseU411}" />
+        </Grid>
+      </Border>
+
+      <!-- Buttons -->
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="16" Margin="0,16,0,0">
+        <Button Content="Lưu" FontSize="16" Padding="32,10" Command="{Binding SaveCommand}" />
+        <Button Content="Quay lại" FontSize="16" Padding="24,10" Command="{Binding BackCommand}" />
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

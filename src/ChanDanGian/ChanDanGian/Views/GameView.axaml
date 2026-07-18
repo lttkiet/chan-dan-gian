@@ -1,0 +1,296 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:ChanDanGian.ViewModels"
+             xmlns:components="using:ChanDanGian.Views.Components"
+             xmlns:converters="using:ChanDanGian.Views"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="ChanDanGian.Views.GameView"
+             x:DataType="vm:GameViewModel">
+  <UserControl.Styles>
+    <Style Selector="Button.action">
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Padding" Value="18,6" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Background" Value="#2e7d32" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.action:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#388e3c" />
+    </Style>
+    <Style Selector="Button.action:disabled">
+      <Setter Property="Background" Value="#555" />
+      <Setter Property="Foreground" Value="#999" />
+    </Style>
+    <Style Selector="Button.danger">
+      <Setter Property="Background" Value="#c62828" />
+    </Style>
+    <Style Selector="Button.danger:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#d32f2f" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
+    <!-- Green felt background (behind everything) -->
+    <Border Grid.RowSpan="5" Background="#1a5c2e" />
+
+    <!-- Top bar (back + status) -->
+    <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="6,4,6,0"
+          ZIndex="10">
+      <Button Grid.Column="0" Content="&#x2190;" FontSize="14" Padding="6,2"
+              Command="{Binding BackToHomeCommand}" Background="#333" Foreground="White" />
+      <TextBlock Grid.Column="1" Text="{Binding HandLabel}" FontSize="11"
+                 VerticalAlignment="Center" HorizontalAlignment="Center"
+                 Foreground="#c9a84c" FontWeight="SemiBold" />
+      <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding StatusMessage}" FontSize="12"
+                 VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,4,0"
+                 Foreground="#ffd54f" FontWeight="Bold" />
+    </Grid>
+
+    <!-- Opponent area (top) - AI 2 (opposite) -->
+    <Grid Grid.Row="1" Margin="8,4,8,0" ZIndex="5">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="2">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="4">
+          <!-- Face-down card stack for AI 2 -->
+          <Border Width="28" Height="42" CornerRadius="3"
+                  Background="#b71c1c" BorderBrush="#8b1a1a" BorderThickness="1"
+                  BoxShadow="1 1 2 #40000000">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#c62828" Offset="0" />
+                <GradientStop Color="#8b1a1a" Offset="1" />
+              </LinearGradientBrush>
+            </Border.Background>
+            <TextBlock Text="{Binding Ai2HandCount}" HorizontalAlignment="Center"
+                       VerticalAlignment="Center" FontSize="12" Foreground="#ffcdd2"
+                       FontWeight="Bold" />
+          </Border>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+          <TextBlock Text="AI 2" FontSize="10" Foreground="#a5d6a7" FontWeight="Bold" />
+          <Border Background="#33333380" CornerRadius="4" Padding="6,1">
+            <TextBlock Text="{Binding Ai2MeldInfo}" FontSize="9" Foreground="#c8e6c9" />
+          </Border>
+        </StackPanel>
+        <!-- Turn indicator -->
+        <Border Background="#ffd54f" CornerRadius="3" Padding="8,1"
+                HorizontalAlignment="Center" IsVisible="{Binding IsAi2Turn}">
+          <TextBlock Text="&#x25BC;" FontSize="8" Foreground="#1a5c2e" />
+        </Border>
+      </StackPanel>
+    </Grid>
+
+    <!-- Game board (center) -->
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ZIndex="5">
+      <!-- Left: meld info -->
+      <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="3" Margin="8,0">
+        <Border Background="#00000060" CornerRadius="6" Padding="8,6">
+          <StackPanel Spacing="3">
+            <TextBlock Text="{Binding ChanInfo}" FontSize="12" Foreground="#c8e6c9" />
+            <TextBlock Text="{Binding CaInfo}" FontSize="12" Foreground="#c8e6c9" />
+            <TextBlock Text="{Binding BaDauInfo}" FontSize="12" Foreground="#c8e6c9" />
+            <TextBlock Text="{Binding QueCount}" FontSize="12" Foreground="#ffd54f" FontWeight="Bold" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- Center: Noc + Discard side by side -->
+      <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+            ColumnDefinitions="Auto,28,Auto" Margin="0,0,0,24">
+        <!-- Noc (draw pile) -->
+        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Spacing="2">
+          <Border Width="60" Height="82" CornerRadius="5"
+                  BorderThickness="1" BoxShadow="2 2 4 #60000000">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#c62828" Offset="0" />
+                <GradientStop Color="#8b1a1a" Offset="1" />
+              </LinearGradientBrush>
+            </Border.Background>
+            <Border.BorderBrush>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#ef9a9a" Offset="0" />
+                <GradientStop Color="#8b1a1a" Offset="1" />
+              </LinearGradientBrush>
+            </Border.BorderBrush>
+            <StackPanel VerticalAlignment="Center" Spacing="2">
+              <TextBlock Text="{Binding DrawPileCount}" HorizontalAlignment="Center"
+                         FontSize="22" Foreground="#ffcdd2" FontWeight="Bold" />
+              <TextBlock Text="N&#x1ECD;c" FontSize="10" HorizontalAlignment="Center"
+                         Foreground="#ffcdd2" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <!-- Arrow between Noc and discard -->
+        <TextBlock Grid.Column="1" Text="&#x2192;" FontSize="20"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="#66bb6a" />
+
+        <!-- Discard pile -->
+        <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="2">
+          <Border Width="60" Height="82" CornerRadius="5"
+                  Background="#f5e6c8" BorderBrush="#8b7355" BorderThickness="1"
+                  BoxShadow="2 2 4 #60000000">
+            <StackPanel VerticalAlignment="Center" Spacing="2">
+              <TextBlock Text="{Binding DiscardCountLabel}" HorizontalAlignment="Center"
+                         FontSize="10" Foreground="#555"
+                         TextWrapping="Wrap" TextAlignment="Center" />
+              <TextBlock Text="B&#x00E0;i r&#x00E1;c" FontSize="10" HorizontalAlignment="Center"
+                         Foreground="#8b7355" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Grid>
+
+      <!-- Right: AI 1 + AI 3 -->
+      <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="16" Margin="8,0">
+        <!-- AI 1 (right) -->
+        <StackPanel Spacing="2">
+          <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Text="AI 1" FontSize="10" Foreground="#a5d6a7" FontWeight="Bold" />
+            <Border Width="28" Height="42" CornerRadius="3"
+                    BorderThickness="1" BoxShadow="1 1 2 #40000000">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                  <GradientStop Color="#c62828" Offset="0" />
+                  <GradientStop Color="#8b1a1a" Offset="1" />
+                </LinearGradientBrush>
+              </Border.Background>
+              <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                  <GradientStop Color="#ef9a9a" Offset="0" />
+                  <GradientStop Color="#8b1a1a" Offset="1" />
+                </LinearGradientBrush>
+              </Border.BorderBrush>
+              <TextBlock Text="{Binding Ai1HandCount}" HorizontalAlignment="Center"
+                         VerticalAlignment="Center" FontSize="10" Foreground="#ffcdd2"
+                         FontWeight="Bold" />
+            </Border>
+          </StackPanel>
+          <Border Background="#33333380" CornerRadius="4" Padding="6,1">
+            <TextBlock Text="{Binding Ai1MeldInfo}" FontSize="9" Foreground="#c8e6c9" />
+          </Border>
+          <Border Background="#ffd54f" CornerRadius="3" Padding="8,1"
+                  HorizontalAlignment="Center" IsVisible="{Binding IsAi1Turn}">
+            <TextBlock Text="&#x25B6;" FontSize="8" Foreground="#1a5c2e" />
+          </Border>
+        </StackPanel>
+
+        <!-- AI 3 (right, below AI 1) -->
+        <StackPanel Spacing="2">
+          <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Text="AI 3" FontSize="10" Foreground="#a5d6a7" FontWeight="Bold" />
+            <Border Width="28" Height="42" CornerRadius="3"
+                    BorderThickness="1" BoxShadow="1 1 2 #40000000">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                  <GradientStop Color="#c62828" Offset="0" />
+                  <GradientStop Color="#8b1a1a" Offset="1" />
+                </LinearGradientBrush>
+              </Border.Background>
+              <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                  <GradientStop Color="#ef9a9a" Offset="0" />
+                  <GradientStop Color="#8b1a1a" Offset="1" />
+                </LinearGradientBrush>
+              </Border.BorderBrush>
+              <TextBlock Text="{Binding Ai3HandCount}" HorizontalAlignment="Center"
+                         VerticalAlignment="Center" FontSize="10" Foreground="#ffcdd2"
+                         FontWeight="Bold" />
+            </Border>
+          </StackPanel>
+          <Border Background="#33333380" CornerRadius="4" Padding="6,1">
+            <TextBlock Text="{Binding Ai3MeldInfo}" FontSize="9" Foreground="#c8e6c9" />
+          </Border>
+          <Border Background="#ffd54f" CornerRadius="3" Padding="8,1"
+                  HorizontalAlignment="Center" IsVisible="{Binding IsAi3Turn}">
+            <TextBlock Text="&#x25B6;" FontSize="8" Foreground="#1a5c2e" />
+          </Border>
+        </StackPanel>
+      </StackPanel>
+    </Grid>
+
+    <!-- Action buttons -->
+    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center"
+                Spacing="10" Margin="0,12,0,6" ZIndex="10">
+      <Button Classes="action" Content="B&#x1ED1;c"
+              Command="{Binding DrawCommand}" IsEnabled="{Binding CanDraw}" />
+      <Button Classes="action" Content="&#x0110;&#x00E1;nh"
+              Command="{Binding DiscardCommand}" IsEnabled="{Binding CanDiscard}" />
+      <Button Classes="action danger" Content="B&#x1ECF;"
+              Command="{Binding PassCommand}" IsEnabled="{Binding CanPass}" />
+      <Button Classes="action" Content="&#x00D9;"
+              Command="{Binding DeclareUCommand}" IsEnabled="{Binding CanDeclareU}" />
+    </StackPanel>
+
+    <!-- Hand fan -->
+    <Grid Grid.Row="4" Margin="0,0,0,8" ZIndex="10">
+      <ItemsControl ItemsSource="{Binding Hand}"
+                    HorizontalAlignment="Center" Height="170"
+                    ClipToBounds="False">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <components:FanPanel FanAngle="60" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:CardViewModel">
+            <Border Width="40" Height="80" CornerRadius="4"
+                    Background="#f5e6c8" BorderBrush="#8b7355" BorderThickness="1"
+                    BoxShadow="1 1 3 #60000000"
+                    PointerPressed="CardPointerPressed"
+                    Tag="{Binding .}"
+                    ClipToBounds="True">
+              <Border.RenderTransform>
+                <TranslateTransform Y="{Binding IsSelected, Converter={x:Static converters:BoolToOffsetConverter.Instance}}" />
+              </Border.RenderTransform>
+              <Panel>
+                <Image Source="{Binding CardImage}"
+                       Stretch="UniformToFill" />
+                <!-- Gold glow when selected -->
+                <Border BorderBrush="#ffd54f" BorderThickness="2.5"
+                        CornerRadius="4" IsVisible="{Binding IsSelected}" />
+                <TextBlock Text="{Binding DisplayRank}" FontSize="11"
+                           FontWeight="Bold" HorizontalAlignment="Center"
+                           VerticalAlignment="Top" Margin="0,2,0,0"
+                           Foreground="{Binding TextColor}" />
+                <TextBlock Text="{Binding DisplaySuit}" FontSize="14"
+                           FontWeight="Bold" HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="{Binding TextColor}" />
+                <TextBlock Text="{Binding DisplayRank}" FontSize="9"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Bottom" Margin="0,0,0,2"
+                           Foreground="{Binding TextColor}" />
+              </Panel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Grid>
+
+    <!-- Win modal -->
+    <Grid Grid.RowSpan="5" Background="#80000000" IsVisible="{Binding ShowWinModal}" ZIndex="100">
+      <Border Background="#1a3a1a" CornerRadius="12" Padding="32"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              BorderBrush="#c9a84c" BorderThickness="2">
+        <StackPanel Spacing="16" HorizontalAlignment="Center">
+          <TextBlock Text="{Binding ResultTitle}" FontSize="28" FontWeight="Bold"
+                     HorizontalAlignment="Center" Foreground="#ffd54f" />
+          <TextBlock Text="{Binding ResultSubtitle}" FontSize="16"
+                     HorizontalAlignment="Center" Foreground="#c8e6c9" />
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
+            <Button Classes="action" Content="Ch&#x1ECD;i l&#x1EA1;i" FontSize="14" Padding="24,8"
+                    Command="{Binding PlayAgainCommand}" />
+            <Button Classes="action danger" Content="V&#x00EA; trang ch&#x1EE7;" FontSize="14" Padding="24,8"
+                    Command="{Binding BackToHomeCommand}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

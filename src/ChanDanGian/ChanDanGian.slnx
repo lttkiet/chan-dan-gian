@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="../../tests/ChanDanGian.Tests/ChanDanGian.Tests.csproj" />
+  <Project Path="../ChanDanGian.Core/ChanDanGian.Core.csproj" />
+  <Project Path="ChanDanGian.Android/ChanDanGian.Android.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="ChanDanGian.Browser/ChanDanGian.Browser.csproj" />
+  <Project Path="ChanDanGian.Desktop/ChanDanGian.Desktop.csproj" />
+  <Project Path="ChanDanGian/ChanDanGian.csproj" />
+</Solution>
